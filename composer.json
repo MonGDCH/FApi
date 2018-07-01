@@ -1,12 +1,11 @@
 {
-    "name": "mon/fapi",
+    "name": "MonGDCH/FApi",
     "description": "the php api routing framework",
     "type": "project",
     "keywords": [
     	"api",
     	"routing",
-        "fapi",
-        "mon"
+        "fapi"
     ],
     "homepage": "http://blog.gdmonlam.com/",
     "license": "Apache-2.0",
