@@ -1,7 +1,7 @@
 <?php
 namespace FApi;
 
-use FApi\App;
+use FApi\Container;
 use FApi\exception\RouteException;
 
 /**
@@ -25,9 +25,9 @@ class Error
 	 *
 	 * @return [type] [description]
 	 */
-	public static function register($debug)
+	public static function register()
 	{
-		self::$debug = $debug;
+		self::$debug = Container::get('config')->get('debug', false);
 		// 判断显示所有错误
 		!self::$debug or error_reporting(E_ALL);
 		// 错误
@@ -48,12 +48,12 @@ class Error
 		$error = error_get_last() ?: null;
         if(!is_null($error) && in_array($error['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR, E_USER_ERROR]))
         {
-        	Log::instance()->error(self::makeErrorMsg($error))->save();
+        	Container::get('log')->error(self::makeErrorMsg($error))->save();
         	self::halt($error);
         }
         else
         {
-        	Log::instance()->save();
+        	Container::get('log')->save();
         }
 	}
 
@@ -75,7 +75,7 @@ class Error
         	'line'		=> $errline
         ];
 
-        Log::instance()->warning(self::makeErrorMsg($error))->save();
+        Container::get('log')->warning(self::makeErrorMsg($error))->save();
         self::halt($error);
     }
 
@@ -97,7 +97,7 @@ class Error
         }
         $error['function'] = $error['class'] = '';
 
-        Log::instance()->alert(self::makeErrorMsg($error))->save();
+        Container::get('log')->alert(self::makeErrorMsg($error))->save();
         $code = ($e instanceof RouteException) ? $e->getCode() : 500;
         self::halt($error, $code);
 	}

@@ -2,27 +2,21 @@
 namespace FApi;
 
 use Closure;
-use ArrayAccess;
 use ReflectionClass;
 use ReflectionMethod;
 use ReflectionFunction;
 use InvalidArgumentException;
+use FApi\traits\Instance;
 
 /**
  * 服务容器类
  *
  * @author Mon 985558837@qq.com
- * @version 1.1  2018-01-10
- * @update 吸收pimple-container及think-container优点
+ * @version 1.2  2018-07-05
  */
-class Container implements ArrayAccess
+class Container
 {
-	/**
-	 * 单例实体
-	 *
-	 * @var null
-	 */
-	protected static $instance = null;
+	use Instance;
 
 	/**
 	 * 容器中对象的标识符
@@ -37,22 +31,6 @@ class Container implements ArrayAccess
 	 * @var array
 	 */
 	protected $service = [];
-
-	/**
-	 * 获取单例
-	 *
-     * @param array $options
-     * @return static
-     */
-    public static function instance($options = [])
-    {
-        if(is_null(self::$instance))
-        {
-            self::$instance = new self($options);
-        }
-        return self::$instance;
-    }
-
 
 	/**
 	 * 获取容器中的对象实例
@@ -154,6 +132,11 @@ class Container implements ArrayAccess
 				{
 					// 匿名函数，绑定参数
 					$object = $this->invokeFunction($service, $vars);
+				}
+				elseif(is_object($service))
+				{
+					// 已实例化的对象
+					$object = $service;
 				}
 				else
 				{
@@ -319,48 +302,11 @@ class Container implements ArrayAccess
 	}
 
 	/**
-	 * ArrayAccess接口方法, 支持数组化设置容器服务
+	 * 魔术方法获取实例
 	 *
 	 * @param  [type] $abstract [description]
-	 * @param  [type] $server   [description]
+	 * @return [type]           [description]
 	 */
-	public function offsetSet($abstract, $server)
-	{
-		static::set($abstract, $server);
-	}
-
-	/**
-	 * ArrayAccess接口方法, 支持数组化获取容器服务
-	 *
-	 * @param  [type] $abstract [description]
-	 * @return object
-	 */
-	public function offsetGet($abstract)
-	{
-		return static::get($abstract);
-	}
-
-	/**
-	 * ArrayAccess接口方法, 支持数组化判断是否存在容器服务
-	 *
-	 * @param  [type] $abstract [description]
-	 * @return object
-	 */
-	public function offsetExists($abstract)
-	{
-		return $this->has($abstract);
-	}
-
-	/**
-	 * ArrayAccess接口方法, 数组化删除容器服务
-	 *
-	 * @param  [type] $abstract [description]
-	 */
-    public function offsetUnset($abstract)
-    {
-    	// TOOD 不做处理
-    }
-
     public function __get($abstract)
     {
     	return static::get($abstract);

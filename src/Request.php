@@ -1,6 +1,8 @@
 <?php
 namespace FApi;
 
+use FApi\traits\Instance;
+
 /**
  * 请求类
  *
@@ -9,12 +11,7 @@ namespace FApi;
  */
 class Request
 {
-    /**
-     * 单例实体
-     *
-     * @var null
-     */
-    protected static $instance = null;
+    use Instance;
 
     /**
      * 请求类型
@@ -57,21 +54,6 @@ class Request
      * @var null
      */
     public $baseUrl = null;
-
-    /**
-     * 获取单例
-     *
-     * @return [type] [description]
-     */
-    public static function instance()
-    {
-        if(!self::$instance)
-        {
-            self::$instance = new self();
-        }
-
-        return self::$instance;
-    }
 
     /**
      * 私有化构造方法

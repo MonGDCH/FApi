@@ -2,7 +2,7 @@
 namespace FApi;
 
 use Closure;
-use FApi\Container;
+use FApi\traits\Instance;
 use FApi\exception\RouteException;
 use FastRoute\RouteParser\Std;
 use FastRoute\DataGenerator\GroupCountBased;
@@ -14,12 +14,7 @@ use FastRoute\RouteCollector;
 */
 class Route
 {
-    /**
-     * 路由实例
-     *
-     * @var [type]
-     */
-    public static $instance;
+    use Instance;
 
 	/**
 	 * fast-route路由容器
@@ -41,13 +36,6 @@ class Route
      * @var array
      */
     protected $data = [];
-
-    /**
-     * 是否定义组别路由
-     *
-     * @var boolean
-     */
-    protected $isGroup = false;
 
     /**
      * 路由组前缀
@@ -78,28 +66,9 @@ class Route
     protected $append;
 
     /**
-     * 获取单例
-     *
-     * @return [type] [description]
-     */
-    public static function instance($prefix = '', $groupPrefix = '')
-    {
-        if(!self::$instance)
-        {
-            self::$instance = new self($prefix = '', $groupPrefix = '');
-        }
-
-        return self::$instance;
-    }
-
-    /**
      * 私有化构造方法
      */
-    private function __construct($prefix = '', $groupPrefix = '')
-    {
-        $this->groupPrefix = $groupPrefix;
-        $this->prefix = $prefix;
-    }
+    private function __construct(){}
 
     /**
      * 设置路由表
@@ -123,6 +92,7 @@ class Route
 
     /**
      * 设置路由数据
+     *
      * @param array $data [description]
      */
     public function setData(array $data)
@@ -141,43 +111,24 @@ class Route
     }
 
     /**
-     * 设置中间件
+     * 获取fast-route路由容器
      *
-     * @param  [type] $callback [description]
-     * @return [type]           [description]
+     * @return [type] [description]
      */
-    public function middleware($callback)
+    public function collector()
     {
-        if($this->isGroup)
+        if(is_null($this->collector))
         {
-            throw new RouteException("routing in the group routing definition cannot define middleware alone!", 500);
+            $this->collector = new RouteCollector(new Std, new GroupCountBased);
         }
 
-        $this->middleware = $callback;
-        return $this;
-    }
-
-    /**
-     * 路由后置
-     *
-     * @param  [type] $callback [description]
-     * @return [type]           [description]
-     */
-    public function append($callback)
-    {
-        if($this->isGroup)
-        {
-            throw new RouteException("routing in the group routing definition cannot define the postpack separately", 500);
-        }
-
-        $this->append =  $callback;
-        return $this;
+        return $this->collector;
     }
 
 	/**
      * 注册GET路由
      *
-     * @param  string $pattern  请求路径
+     * @param  string $pattern  请求模式
      * @param  [type] $callback 路由回调
      */
     public function get($pattern, $callback)
@@ -188,7 +139,7 @@ class Route
     /**
      * 注册POST路由
      *
-     * @param  string $pattern  请求路径
+     * @param  string $pattern  请求模式
      * @param  [type] $callback 路由回调
      */
     public function post($pattern, $callback)
@@ -199,7 +150,7 @@ class Route
     /**
      * 注册PUT路由
      *
-     * @param  string $pattern  请求路径
+     * @param  string $pattern  请求模式
      * @param  [type] $callback 路由回调
      */
     public function put($pattern, $callback)
@@ -210,7 +161,7 @@ class Route
     /**
      * 注册PATCH路由
      *
-     * @param  string $pattern  请求路径
+     * @param  string $pattern  请求模式
      * @param  [type] $callback 路由回调
      */
     public function patch($pattern, $callback)
@@ -221,7 +172,7 @@ class Route
     /**
      * 注册DELETE路由
      *
-     * @param  string $pattern  请求路径
+     * @param  string $pattern  请求模式
      * @param  [type] $callback 路由回调
      */
     public function delete($pattern, $callback)
@@ -232,7 +183,7 @@ class Route
     /**
      * 注册OPTIONS路由
      *
-     * @param  string $pattern  请求路径
+     * @param  string $pattern  请求模式
      * @param  [type] $callback 路由回调
      */
     public function options($pattern, $callback)
@@ -243,7 +194,7 @@ class Route
     /**
      * 注册任意请求方式的路由
      *
-     * @param  string $pattern  请求路径
+     * @param  string $pattern  请求模式
      * @param  [type] $callback 路由回调
      */
     public function any($pattern, $callback)
@@ -260,83 +211,103 @@ class Route
      */
     public function group($pattern, Closure $callback)
     {
-        $this->isGroup = true;
         $groupPrefix = $this->groupPrefix;
         $prefix = $this->prefix;
+        $middleware =  $this->middleware;
+        $append = $this->append;
 
+        $parse = $this->parsePattern($pattern);
+        $this->groupPrefix .=  $parse['prefix'];
+        $this->prefix =  $parse['namespace'];
+        $this->middleware =  $parse['middleware'];
+        $this->append =  $parse['append'];
 
-        if(is_string($pattern))
-        {
-            $this->groupPrefix .= $pattern;
-        }
-        elseif(is_array($pattern))
-        {
-            $this->groupPrefix .= isset($pattern['prefix']) ? $pattern['prefix'] : '';
-            $this->prefix .= isset($pattern['namespace']) ? $pattern['namespace'] : '';
-        }
-        $callback($this);
+        call_user_func($callback, $this);
+
         $this->groupPrefix = $groupPrefix;
         $this->prefix = $prefix;
-        $this->middleware =  null;
-        $this->append = null;
-        $this->isGroup =  false;
+        $this->middleware =  $middleware;
+        $this->append = $append;
     }
 
     /**
      * 注册路由方法
      *
      * @param  array  $method   请求方式
-     * @param  string $pattern  请求路径
+     * @param  string $pattern  请求模式
      * @param  [type] $callback 路由回调
      * @return [type]           [description]
      */
     public function map(array $method, $pattern, $callback)
-    {   
-        if($callback instanceof Closure)
-        {
-            // TODO 这里绑定的容器对象有时候会获取不到
-            $callback = $callback->bindTo(Container::instance());
-        }
-
-        // 增加路由前缀
-        $pattern = $this->groupPrefix . $pattern;
+    {
+        $parse = $this->parsePattern($pattern);
+        // 获取请求路径
+        $path = $this->groupPrefix . $parse['prefix'];
+        // 获取请求回调
         if(is_string($callback))
         {
-            $callback = $this->prefix . $callback;
+            $callback = (!empty($parse['namespace']) ? $parse['namespace'] : $this->prefix) . $callback;
         }
-        
-        // 记录路由表
+
+        // 获取路由标志，记录路由表
         $name = $this->getName();
         $this->table[$name] = [
-            'middleware'    => $this->middleware,
+            'middleware'    => $parse['middleware'],
             'callback'      => $callback,
-            'append'        => $this->append
+            'append'        => $parse['append']
         ];
         // 注册fast-route路由表
-        $this->collector()->addRoute($method, $pattern, $name);
+        $this->collector()->addRoute($method, $path, $name);
 
-        // 未组别路由，重装中间件、后置件
-        if(!$this->isGroup)
-        {
-            $this->middleware =  null;
-            $this->append = null;
-        }
+        return $this;
     }
 
-	/**
-	 * 获取路由容器
-	 *
-	 * @return [type] [description]
-	 */
-	public function collector()
-	{
-		if(is_null($this->collector))
-		{
-			$this->collector = new RouteCollector(new Std, new GroupCountBased);
-		}
+    /**
+     * 解析请求模式
+     *
+     * @param  [type] $pattern [description]
+     * @return [type]          [description]
+     */
+    protected function parsePattern($pattern)
+    {
+        $res = [
+            // 路由路径或者路由前缀
+            'prefix'    => '',
+            // 命名空间
+            'namespace' => '',
+            // 中间件
+            'middleware'=> $this->middleware,
+            // 后置件
+            'append'    => $this->append,
+        ];
+        if(is_string($pattern))
+        {
+            // 字符串，标示请求路径
+            $res['prefix'] = $pattern;
+        }
+        elseif(is_array($pattern))
+        {
+            // 数组，解析配置
+            if(isset($pattern['prefix']))
+            {
+                $res['prefix'] = $pattern['prefix'];
+            }
+            if(isset($pattern['namespace']))
+            {
+                $res['namespace'] = $pattern['namespace'];
+            }
+            if(isset($pattern['middleware']))
+            {
+                $res['middleware'] = $pattern['middleware'];
+            }
+            if(isset($pattern['append']))
+            {
+                $res['append'] = $pattern['append'];
+            }
+        }
 
-		return $this->collector;
-	}
+        return $res;
+    }
 
 	/**
 	 * 执行路由
@@ -361,9 +332,9 @@ class Route
      *
      * @return [type] [description]
      */
-    public function getName()
+    protected function getName()
     {
-        return md5(uniqid());
+        return md5(uniqid(mt_rand(), true));
     }
 
 }

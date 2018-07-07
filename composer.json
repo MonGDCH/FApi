@@ -1,6 +1,7 @@
 {
     "name": "mongdch/fapi",
     "description": "the php api routing framework",
+    "version" : "1.0.2",
     "keywords": [
     	"api",
     	"routing",

@@ -1,35 +1,10 @@
-# Fapi
-
-#### 项目介绍
-PHP Api友好快速路由框架。
-性能大约是slim3.0的2倍，可以自行使用ab压测，如有疑问欢迎邮件@我的^_^
-
-#### 版本说明
-
-> v1.0.2-LTS
-
- 1. 加入FApi\Config用于管理配置信息。
- 2. 优化App注册对象容器及应用配置
- 3. 优化路由性能和用法
- 4. 优化App类对中间件、控制器、后置件的控制
-
-#### 安装教程
-```
-composer require mongdch/fapi
-```
-或者
-```
-git clone https://github.com/MonGDCH/FApi.git
-```
-当然，使用git的话建议还是使用release的，当然给我提交issues，我也是非常欢迎的^_^。
-
-#### 使用说明
-```
 <?php
-
+/**
+ * 路由DEMO
+ */
 require '../vendor/autoload.php';
 
-// 获取应用实例，true表示开启调试模式
+// 获取应用实例，true表示开启调试模式, false表示生产模式
 $app = \FApi\App::instance(true);
 
 // 函数调用演示
@@ -94,5 +69,3 @@ $response = $app->run();
 // 输出响应对象
 $response->send();
 
-
-```

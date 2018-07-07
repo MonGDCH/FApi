@@ -2,6 +2,8 @@
 namespace FApi;
 
 use Exception;
+use FApi\traits\Instance;
+use FApi\traits\LogInterface;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -11,12 +13,7 @@ use Psr\Log\LoggerInterface;
  */
 class Log implements LoggerInterface
 {
-    /**
-     * 单例实体
-     *
-     * @var null
-     */
-    protected static $instance;
+    use Instance, LogInterface;
 
     /**
      * 日志级别
@@ -32,34 +29,12 @@ class Log implements LoggerInterface
     const SQL       = 'sql';
     const CACHE     = 'cache';
 
-     /**
-     * 记录日志
-     *
-     * @var array
-     */
-    public $log = [];
-
     /**
      * 日志保存驱动, 提供save接口用于保存日志, 且返回true表示日志记录成功
      *
      * @var [type]
      */
     public $driver;
-
-    /**
-     * 获取单例
-     *
-     * @return [type] [description]
-     */
-    public static function instance()
-    {
-        if(!self::$instance)
-        {
-            self::$instance = new self();
-        }
-
-        return self::$instance;
-    }
 
     /**
      * 注册日志配置
@@ -93,170 +68,6 @@ class Log implements LoggerInterface
         else
         {
             throw new Exception("Log drive error! Only allowed object instances or object names! ", 500);
-        }
-
-        return $this;
-    }
-
-    /**
-     * 记录日志信息
-     *
-     * @param string $level     日志级别
-     * @param mixed  $message   日志信息
-     * @param array  $context   替换内容
-     * @return void
-     */
-    public function log($level, $message, array $context = [])
-    {
-        return $this->record($message, $level, $context);
-    }
-
-    /**
-     * 记录emergency信息
-     *
-     * @param mixed  $message   日志信息
-     * @param array  $context   替换内容
-     * @return void
-     */
-    public function emergency($message, array $context = [])
-    {
-        return $this->log(__FUNCTION__, $message, $context);
-    }
-
-    /**
-     * 记录警报信息
-     *
-     * @param mixed  $message   日志信息
-     * @param array  $context   替换内容
-     * @return void
-     */
-    public function alert($message, array $context = [])
-    {
-        return $this->log(__FUNCTION__, $message, $context);
-    }
-
-    /**
-     * 记录紧急情况
-     *
-     * @param mixed  $message   日志信息
-     * @param array  $context   替换内容
-     * @return void
-     */
-    public function critical($message, array $context = [])
-    {
-        return $this->log(__FUNCTION__, $message, $context);
-    }
-
-    /**
-     * 记录错误信息
-     *
-     * @param mixed  $message   日志信息
-     * @param array  $context   替换内容
-     * @return void
-     */
-    public function error($message, array $context = [])
-    {
-        return $this->log(__FUNCTION__, $message, $context);
-    }
-
-    /**
-     * 记录warning信息
-     *
-     * @param mixed  $message   日志信息
-     * @param array  $context   替换内容
-     * @return void
-     */
-    public function warning($message, array $context = [])
-    {
-        return $this->log(__FUNCTION__, $message, $context);
-    }
-
-    /**
-     * 记录notice信息
-     *
-     * @param mixed  $message   日志信息
-     * @param array  $context   替换内容
-     * @return void
-     */
-    public function notice($message, array $context = [])
-    {
-        return $this->log(__FUNCTION__, $message, $context);
-    }
-
-    /**
-     * 记录一般信息
-     *
-     * @param mixed  $message   日志信息
-     * @param array  $context   替换内容
-     * @return void
-     */
-    public function info($message, array $context = [])
-    {
-        return $this->log(__FUNCTION__, $message, $context);
-    }
-
-    /**
-     * 记录调试信息
-     *
-     * @param mixed  $message   日志信息
-     * @param array  $context   替换内容
-     * @return void
-     */
-    public function debug($message, array $context = [])
-    {
-        return $this->log(__FUNCTION__, $message, $context);
-    }
-
-    /**
-     * 记录sql信息
-     *
-     * @param mixed  $message   日志信息
-     * @param array  $context   替换内容
-     * @return void
-     */
-    public function sql($message, array $context = [])
-    {
-        return $this->log(__FUNCTION__, $message, $context);
-    }
-
-    /**
-     * 记录cache信息
-     *
-     * @param mixed  $message   日志信息
-     * @param array  $context   替换内容
-     * @return void
-     */
-    public function cache($message, array $context = [])
-    {
-        return $this->log(__FUNCTION__, $message, $context);
-    }
-
-    /**
-     * 记录日志信息
-     *
-     * @param mixed  $msg       日志信息
-     * @param string $type      日志级别
-     * @param array  $context   替换内容
-     * @return $this
-     */
-    public function record($msg, $type = 'info', array $context = [])
-    {
-        if(is_string($msg))
-        {
-            $replace = [];
-            foreach($context as $key => $val)
-            {
-                $replace['{' . $key . '}'] = $val;
-            }
-
-            $msg = strtr($msg, $replace);
-        }
-
-        $this->log[$type][] = $msg;
-
-        if (PHP_SAPI == 'cli') {
-            // 命令行日志实时写入
-            $this->save();
         }
 
         return $this;
