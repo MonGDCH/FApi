@@ -2,6 +2,7 @@
 namespace FApi;
 
 use Closure;
+use ReflectionFunction;
 use FApi\traits\Instance;
 use FApi\exception\RouteException;
 use FastRoute\RouteParser\Std;
@@ -326,6 +327,68 @@ class Route
 
 		return $dispatch->dispatch($method, $path);
 	}
+
+    /**
+     * 批量注册路由
+     * 主要用于配置缓存路由使用
+     *
+     * @param  array $router  缓存路由结果集
+     * @return [type]         [description]
+     */
+    public function register(array $router)
+    {
+        $this->setData($router['fast']);
+        $this->setTable($router['api']);
+    }
+
+    /**
+     * 获取路由缓存结果集,或者缓存路由
+     *
+     * @param  [type] $path 缓存文件路径，存在缓存路径则输出缓存文件
+     * @return [type]       [description]
+     */
+    public function cache($path = '')
+    {
+        $data = [
+            'fast'  => $this->getData(),
+            'api'   => $this->getTable()
+        ];
+
+        array_walk_recursive($data, [$this, 'buildClosure']);
+        $content = var_export($data, true);
+        $content = str_replace(['\'[__start__', '__end__]\''], '', stripcslashes($content));
+        // 不存在缓存文件路径，返回缓存结果集
+        if(empty($path)){
+            return $content;
+        }
+        // 缓存路由文件
+        $cache = '<?php ' . PHP_EOL . 'return ' . $content . ';';
+        return file_put_contents($path, $cache);
+    }
+
+    /**
+     * 生成路由内容
+     *
+     * @param  [type] &$value [description]
+     * @return [type]         [description]
+     */
+    protected function buildClosure(&$value)
+    {
+        if ($value instanceof Closure) {
+            $reflection = new ReflectionFunction($value);
+            $startLine  = $reflection->getStartLine();
+            $endLine    = $reflection->getEndLine();
+            $file       = $reflection->getFileName();
+            $item       = file($file);
+            $content    = '';
+            for ($i = $startLine - 1; $i <= $endLine - 1; $i++) {
+                $content .= $item[$i];
+            }
+            $start = strpos($content, 'function');
+            $end   = strrpos($content, '}');
+            $value = '[__start__' . substr($content, $start, $end - $start + 1) . '__end__]';
+        }
+    }
 
     /**
      * 获取当前路由的唯一标志

@@ -4,14 +4,13 @@ namespace FApi;
 use Exception;
 use FApi\traits\Instance;
 use FApi\traits\LogInterface;
-use Psr\Log\LoggerInterface;
 
 /**
  * 日志处理类
  * @author Mon
  * @version v2.1 修改打印日志格式
  */
-class Log implements LoggerInterface
+class Log
 {
     use Instance, LogInterface;
 
