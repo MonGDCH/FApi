@@ -72,23 +72,19 @@ class Container
 	 */
 	public function bind($abstract, $server = null)
 	{
-		if(is_array($abstract))
-		{
+		if(is_array($abstract)){
 			// 传入数组，批量注册
 			$this->bind = array_merge($this->bind, $abstract);
 		}
-		elseif($server instanceof Closure)
-		{
+		elseif($server instanceof Closure){
 			// 闭包，绑定闭包
 			$this->bind[$abstract] = $server;
 		}
-		elseif(is_object($server))
-		{
+		elseif(is_object($server)){
 			// 实例化后的对象, 保存到实例容器中
 			$this->service[$abstract] = $server;
 		}
-		else
-		{
+		else{
 			// 对象类名称，先保存，不实例化
 			$this->bind[$abstract] = $server;
 		}
@@ -117,35 +113,28 @@ class Container
 	 */
 	public function make($abstract, $vars = [], $new = false)
 	{
-		if(isset($this->service[$abstract]) && !$new)
-		{
+		if(isset($this->service[$abstract]) && !$new){
 			$object = $this->service[$abstract];
 		}
-		else
-		{
-			if(isset($this->bind[$abstract]))
-			{
+		else{
+			if(isset($this->bind[$abstract])){
 				// 存在标识
 				$service = $this->bind[$abstract];
 
-				if($service instanceof Closure)
-				{
+				if($service instanceof Closure){
 					// 匿名函数，绑定参数
 					$object = $this->invokeFunction($service, $vars);
 				}
-				elseif(is_object($service))
-				{
+				elseif(is_object($service)){
 					// 已实例化的对象
 					$object = $service;
 				}
-				else
-				{
+				else{
 					// 类对象，回调获取实例
 					$object = $this->make($service, $vars, $new);
 				}
 			}
-			else
-			{
+			else{
 				// 不存在，判断为直接写入的类对象, 获取实例
 				$object = $this->invokeClass($abstract, $vars);
 			}
@@ -183,18 +172,15 @@ class Container
 	 */
 	public function invokeMethd($method, $vars = [])
 	{
-		if(is_string($method))
-		{
+		if(is_string($method)){
 			$method = explode('@', $method);
 		}
 
-		if(is_array($method))
-		{
+		if(is_array($method)){
 			$class = is_object($method[0]) ? $method[0] : $this->invokeClass($method[0]);
 			$reflact = new ReflectionMethod($class, $method[1]);
 		}
-		else
-		{
+		else{
 			$reflact = new ReflectionMethod($method);
 		}
 
@@ -215,13 +201,11 @@ class Container
 		// 获取构造方法
         $constructor = $reflect->getConstructor();
 
-        if ($constructor)
-        {
+        if ($constructor){
         	// 存在构造方法
             $args = $this->bindParams($constructor, $vars);
         }
-        else
-        {
+        else{
             $args = [];
         }
 
@@ -236,12 +220,10 @@ class Container
 	 */
 	public function invoke($callback, $vars = [])
 	{
-		if($callback instanceof Closure)
-		{
+		if($callback instanceof Closure){
 			$result = $this->invokeFunction($callback, $vars);
 		}
-		else
-		{
+		else{
 			$result = $this->invokeMethd($callback, $vars);
 		}
 
@@ -259,8 +241,7 @@ class Container
 	{
 		$args = [];
 
-		if($reflact->getNumberOfParameters() > 0)
-		{
+		if($reflact->getNumberOfParameters() > 0){
 			// 判断数组类型 数字数组时按顺序绑定参数
 			reset($vars);
 			$type = key($vars) === 0 ? 1 : 0;
@@ -274,25 +255,20 @@ class Container
 				$name  = $param->getName();
                 $class = $param->getClass();
 
-                if($class)
-                {
+                if ($class) {
                 	$className = $class->getName();
                 	$args[] = $this->make($className);
                 }
-                elseif (1 == $type && !empty($vars))
-                {
+                elseif (1 == $type && !empty($vars)) {
                     $args[] = array_shift($vars);
                 } 
-                elseif (0 == $type && isset($vars[$name]))
-                {
+                elseif (0 == $type && isset($vars[$name])) {
                     $args[] = $vars[$name];
                 }
-                elseif($param->isDefaultValueAvailable())
-                {
+                elseif ($param->isDefaultValueAvailable()) {
                 	$args[] = $param->getDefaultValue();
                 }
-                else
-                {
+                else {
                 	throw new InvalidArgumentException('bind parameters were not found! [ '.$name.' ]', 500);
                 }
 			}

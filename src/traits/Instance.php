@@ -18,8 +18,7 @@ trait Instance
 	 */
 	public static function instance($option = [])
 	{
-		if(is_null(static::$instance))
-		{
+		if(is_null(static::$instance)){
 			static::$instance = new static($option);
 		}
 

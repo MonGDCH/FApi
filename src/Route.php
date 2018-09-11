@@ -118,8 +118,7 @@ class Route
      */
     public function collector()
     {
-        if(is_null($this->collector))
-        {
+        if(is_null($this->collector)){
             $this->collector = new RouteCollector(new Std, new GroupCountBased);
         }
 
@@ -245,8 +244,7 @@ class Route
         // 获取请求路径
         $path = $this->groupPrefix . $parse['prefix'];
         // 获取请求回调
-        if(is_string($callback))
-        {
+        if(is_string($callback)){
             $callback = (!empty($parse['namespace']) ? $parse['namespace'] : $this->prefix) . $callback;
         }
 
@@ -281,13 +279,11 @@ class Route
             // 后置件
             'append'    => $this->append,
         ];
-        if(is_string($pattern))
-        {
+        if(is_string($pattern)){
             // 字符串，标示请求路径
             $res['prefix'] = $pattern;
         }
-        elseif(is_array($pattern))
-        {
+        elseif(is_array($pattern)){
             // 数组，解析配置
             if(isset($pattern['prefix']))
             {
@@ -319,8 +315,7 @@ class Route
 	 */
 	public function dispatch($method, $path)
 	{
-		if(empty($this->data))
-		{
+		if(empty($this->data)){
 			$this->data = $this->collector()->getData();
 		}
 		$dispatch = new Dispatcher($this->data);

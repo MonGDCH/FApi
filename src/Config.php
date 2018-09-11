@@ -43,8 +43,7 @@ class Config
 	 */
 	public function load($config, $alias = null)
 	{
-		if(!file_exists($config))
-		{
+		if(!file_exists($config)){
 			throw new Exception("config file not found! [ {$config} ]");
 		}
 		$data = include $config;
@@ -62,17 +61,16 @@ class Config
 	 */
 	public function set($key, $value = null)
 	{
-		if(is_array($key))
-		{
+		if(is_array($key)){
 			// 数组，批量注册
 			return $this->register($config);
 		}
-		elseif(is_string($key))
-		{
+		elseif(is_string($key)){
 			// 字符串，节点配置
 			if (!strpos($key, '.')) {
 				$this->config[ $key ] = $value;
-			}else{
+			}
+			else{
 				$name = explode('.', $key, 2);
 				$this->config[$name[0]][$name[1]] = $value;
 			}
@@ -90,16 +88,14 @@ class Config
 	 */
 	public function get($key = null, $default = null)
 	{
-		if(empty($key))
-		{
+		if(empty($key)){
 			return $this->config;
 		}
 		// 以"."分割，支持多纬度配置信息获取
 		$name = explode('.', $key);
 
 		$data = $this->config;
-		for($i=0,$len=count($name); $i<$len; $i++)
-		{
+		for($i=0,$len=count($name); $i<$len; $i++){
 			// 不存在配置节点，返回默认值
 			if(!isset($data[ $name[$i] ])){
 				$data = $default;

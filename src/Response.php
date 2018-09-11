@@ -1,8 +1,9 @@
 <?php
 namespace FApi;
 
-use FApi\exception\ResponseException;
+USE FApi\Hook;
 use FApi\Container;
+use FApi\exception\ResponseException;
 
 class Response
 {
@@ -95,12 +96,10 @@ class Response
 	 */
 	public function header($name, $val = null)
 	{
-		if(is_array($name))
-		{
+		if(is_array($name)){
             $this->header = array_merge($this->header, $name);
         }
-        else
-        {
+        else{
             $this->header[$name] = $val;
         }
 
@@ -156,9 +155,11 @@ class Response
 		// 获取数据
 		$data = $this->getContent();
 
+		// 输出结果钩子
+		Hook::listen('send', $data);
+
 		// 输出头
-		if(!headers_sent() && !empty($this->header))
-    	{
+		if(!headers_sent() && !empty($this->header)){
             // 发送状态码
             http_response_code($this->code);
             // 发送头部信息
@@ -166,7 +167,8 @@ class Response
             {
                 if (is_null($val)) {
                     header($name);
-                } else {
+                }
+                else {
                     header($name . ':' . $val);
                 }
             }
@@ -176,8 +178,7 @@ class Response
         echo $data;
 
         // fastcgi提高页面响应
-        if(function_exists('fastcgi_finish_request'))
-        {
+        if(function_exists('fastcgi_finish_request')){
             fastcgi_finish_request();
         }
 
@@ -226,8 +227,7 @@ class Response
 		$data = json_encode($this->data, JSON_UNESCAPED_UNICODE);
 
 		// 转换失败，抛出错误信息
-		if($data === false)
-		{
+		if($data === false){
 			throw new ResponseException('Data conversion to json format failed,'.json_last_error_msg(), 500);
 		}
 

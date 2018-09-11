@@ -1,7 +1,7 @@
 <?php
 namespace FApi;
 
-use FApi\Log;
+use FApi\Hook;
 use FApi\Error;
 use FApi\Route;
 use FApi\Config;
@@ -20,7 +20,7 @@ class App
 	/**
 	 * 版本号
 	 */
-	const VERSION = '1.0.2';
+	const VERSION = '1.1.2';
 
 	/**
 	 * 服务容器实例
@@ -76,7 +76,7 @@ class App
 	 *
 	 * @param array $config [description]
 	 */
-	private function __construct($debug = true)
+	private function __construct($debug = false)
 	{
 		$this->container = Container::instance();
 		// 注册服务
@@ -87,20 +87,20 @@ class App
 			'request'	=> Request::instance(),
 			// 注册路由类实例
 			'route'		=> Route::instance(),
-			// 注册日志类实例
-			'log'		=> Log::instance()
 		]);
 		// 配置运行模式
 		$this->container->make('config')->set('debug', $debug !== false ? true : false);
 		// 注册异常处理
 		Error::register();
+
+		// 应用初始化
+		Hook::listen('bootstrap');
 	}
 
 	/**
-	 * 魔术方法获取实例
+	 * 魔术属性支持
 	 *
-	 * @param  [type] $abstract [description]
-	 * @return [type]           [description]
+	 * @return [type] [description]
 	 */
 	public function __get($abstract)
     {
@@ -114,7 +114,7 @@ class App
 	 */
 	public function register($config = [])
 	{
-		$this->config->register($config);
+		$this->container->make('config')->register($config);
 		return $this;
 	}
 
@@ -148,6 +148,8 @@ class App
 	 */
 	public function run()
 	{
+		Hook::listen('run');
+
 		$request = $this->container->make('request');
 		$path = $request->pathInfo();
 		$method = $request->method();
@@ -195,8 +197,7 @@ class App
 		// 执行控制器
     	$result = $this->container->invoke($this->controller, $this->vars);
     	// 执行后置件
-    	if($this->append)
-    	{
+    	if($this->append){
     		$result = $this->runKernel($this->append, $result);
     	}
 
@@ -211,16 +212,13 @@ class App
 	 */
 	public function response($result = '')
 	{
-		if($result instanceof Response)
-        {
+		if($result instanceof Response){
             $response = $result;
         }
-        elseif(!is_null($result))
-        {
+        elseif(!is_null($result)){
             $response = Response::create($result);
         }
-        else
-        {
+        else{
             $response = Response::create();
         }
 
@@ -242,8 +240,7 @@ class App
 		$this->vars = $vars;
 		// 获取路由映射表
 		$table = $this->route->getTable();
-		if(!isset($table[$this->callback]))
-		{
+		if(!isset($table[$this->callback])){
 			throw new RouteException("Route callback is not found", 500);
 		}
 		$item = $table[$this->callback];
@@ -255,13 +252,16 @@ class App
 		// 获取回调后置件
 		$this->append = $item['append'];
 
+		// 回调执行前
+		Hook::listen('action_befor', $this);
+
 		try {
 			// 执行中间件
 			if($this->middleware){
 				// 存在中间件，执行中间件，绑定参数：路由请求参数和App实例
-				// $result = $this->container->invoke($this->middleware, [$this->vars, $this]);
 				$result = $this->runKernel($this->middleware, $this->vars);
-			}else{
+			}
+			else{
 				// 不存在中间件，执行控制器及后置件
 				$result = $this->next();
 			}
@@ -269,6 +269,9 @@ class App
 		} catch (JumpException $e) {
 			$result =  $e->getResponse();
 		}
+
+		// 回调结束后
+		Hook::listen('action_after', $result);
 
 		return $result;
 	}
