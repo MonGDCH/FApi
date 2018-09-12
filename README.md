@@ -5,6 +5,17 @@ PHP Api友好快速路由框架。
 性能大约是slim3.0的2倍，可以自行使用ab压测，如有疑问欢迎邮件@我的^_^
 
 #### 版本说明
+
+> v1.2.1
+
+注意： 这是一个大的改动，不支持平滑升级
+
+1. 移除自带的Log类
+2. 增加Hook支持
+3. 优化应用执行流程
+4. 优化容器服务支持二维数组定义(一维键值作为二维键值前缀，以 _ 分割)
+5. 增强错误提示信息
+ 
 > v1.1.0
 
  1. 中间件、后置件以对象化实例调用时，统一调用handler方法
@@ -37,7 +48,7 @@ git clone https://github.com/MonGDCH/FApi.git
 require '../vendor/autoload.php';
 
 // 获取应用实例，true表示开启调试模式
-$app = \FApi\App::instance(true);
+$app = \FApi\App::instance()->init()->debug(true);
 
 // 函数调用演示
 $app->route->group('', function($route){

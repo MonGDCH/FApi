@@ -24,7 +24,7 @@ class TestHook
 	'error'		=> 'TestHook',
 ]);
 
-$app = \FApi\App::instance(true);
+$app = \FApi\App::instance()->init();
 
 $app->route->get('/', function($id = 1){
 	return $id;

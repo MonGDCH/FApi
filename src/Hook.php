@@ -36,10 +36,7 @@ class Hook
 	 */
 	public static function register(array $tags)
 	{
-		foreach($tags as $tag => $callbak)
-		{
-			self::add($tag, $callbak);
-		}
+		self::$tags = array_merge(self::$tags, $tags);
 	}
 
 	/**

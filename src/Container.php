@@ -60,32 +60,72 @@ class Container
 	/**
 	 * 私有化构造方法
 	 */
-	private function __construct(){}
+	protected function __construct(){}
 
 	/**
-	 * 绑定一个类、闭包、实例、接口实现到容器
+	 * 魔术方法获取实例
+	 *
+	 * @param  [type] $abstract [description]
+	 * @return [type]           [description]
+	 */
+    public function __get($abstract)
+    {
+    	return static::get($abstract);
+    }
+
+    /**
+	 * 绑定类、闭包、实例、接口实现到容器
+	 *
+	 * @param  [type] $abstract [description]
+	 * @param  [type] $server   [description]
+	 * @return [type]           [description]
+	 */
+	public function bind($abstract, $server = null)
+	{
+		// 传入数组，批量注册
+		if(is_array($abstract)){
+			foreach($abstract as $prefix => $service)
+			{
+				// 数组，定义前缀并绑定服务
+				if(is_array($service)){
+					foreach($service as $k => $v)
+					{
+						$name = $prefix . '_' . $k;
+						$this->register($name, $v); 
+					}
+				}
+				else{
+					$this->register($prefix, $service);
+				}
+			}
+		}
+		else{
+			$this->register($abstract, $server);
+		}
+
+		return $this;
+	}
+
+	/**
+	 * 注册服务容器
 	 *
 	 * @param [type] $abstract 类名称或标识符
 	 * @param [type] $server   要绑定的实例
 	 *
 	 * @return $this
 	 */
-	public function bind($abstract, $server = null)
+	public function register($abstract, $server = null)
 	{
-		if(is_array($abstract)){
-			// 传入数组，批量注册
-			$this->bind = array_merge($this->bind, $abstract);
-		}
-		elseif($server instanceof Closure){
-			// 闭包，绑定闭包
+		// 闭包，绑定闭包
+		if($server instanceof Closure){	
 			$this->bind[$abstract] = $server;
 		}
-		elseif(is_object($server)){
-			// 实例化后的对象, 保存到实例容器中
+		// 实例化后的对象, 保存到实例容器中
+		elseif(is_object($server)){		
 			$this->service[$abstract] = $server;
 		}
+		// 对象类名称，先保存，不实例化
 		else{
-			// 对象类名称，先保存，不实例化
 			$this->bind[$abstract] = $server;
 		}
 
@@ -276,16 +316,4 @@ class Container
 
 		return $args;
 	}
-
-	/**
-	 * 魔术方法获取实例
-	 *
-	 * @param  [type] $abstract [description]
-	 * @return [type]           [description]
-	 */
-    public function __get($abstract)
-    {
-    	return static::get($abstract);
-    }
-
 }

@@ -20,7 +20,14 @@ class App
 	/**
 	 * 版本号
 	 */
-	const VERSION = '1.1.2';
+	const VERSION = '1.2.1';
+
+	/**
+	 * 启动模式
+	 *
+	 * @var [type]
+	 */
+	protected $debug = null;
 
 	/**
 	 * 服务容器实例
@@ -76,7 +83,7 @@ class App
 	 *
 	 * @param array $config [description]
 	 */
-	private function __construct($debug = false)
+	protected function __construct()
 	{
 		$this->container = Container::instance();
 		// 注册服务
@@ -88,13 +95,6 @@ class App
 			// 注册路由类实例
 			'route'		=> Route::instance(),
 		]);
-		// 配置运行模式
-		$this->container->make('config')->set('debug', $debug !== false ? true : false);
-		// 注册异常处理
-		Error::register();
-
-		// 应用初始化
-		Hook::listen('bootstrap');
 	}
 
 	/**
@@ -105,6 +105,35 @@ class App
 	public function __get($abstract)
     {
     	return $this->container->make($abstract);
+    }
+
+    /**
+     * 初始化应用
+     *
+     * @return [type] [description]
+     */
+    public function init()
+    {
+		// 设置运行模式
+		$this->container->make('config')->set('debug', ($this->debug !== null) ? boolval($this->debug) : true);
+		// 注册异常处理
+		Error::register();
+		// 应用初始化钩子
+		Hook::listen('bootstrap');
+
+		return $this;
+    }
+
+    /**
+     * 设置调试模式
+     *
+     * @param  boolean $debug [description]
+     * @return [type]         [description]
+     */
+    public function debug($debug = true)
+    {
+    	$this->debug = $debug;
+    	return $this;
     }
 
 	/**
@@ -132,6 +161,17 @@ class App
 	}
 
 	/**
+	 * 定义应用钩子
+	 *
+	 * @return [type] [description]
+	 */
+	public function definition($tags = [])
+	{
+		Hook::register($tags);
+		return $this;
+	}
+
+	/**
 	 * 获取响应结果集
 	 *
 	 * @return [type] [description]
@@ -148,6 +188,7 @@ class App
 	 */
 	public function run()
 	{
+		// 应用执行钩子
 		Hook::listen('run');
 
 		$request = $this->container->make('request');

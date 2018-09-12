@@ -4,8 +4,8 @@
  */
 require '../vendor/autoload.php';
 
-// 获取应用实例，true表示开启调试模式, false表示生产模式
-$app = \FApi\App::instance(true);
+// 获取应用实例
+$app = \FApi\App::instance()->init();
 
 // 函数调用演示
 $app->route->group('', function($route){

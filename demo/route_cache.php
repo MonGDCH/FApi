@@ -8,7 +8,7 @@ require __DIR__ . '/../vendor/autoload.php';
 /**
  * 注册应用实例
  */
-$app = \FApi\App::instance(true);
+$app = \FApi\App::instance()->init();
 
 $app->singleton([
 	'midd'	=> Test::class

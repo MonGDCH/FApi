@@ -4,7 +4,7 @@
  */
 require '../vendor/autoload.php';
 
-$app = \FApi\App::instance();
+$app = \FApi\App::instance()->init();
 
 // 通过配置对象实例获取
 $class =  \FApi\Config::instance();
