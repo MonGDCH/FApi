@@ -25,13 +25,6 @@ class Route
 	protected $collector;
 
     /**
-     * 路由映射表
-     *
-     * @var [type]
-     */
-    protected $table = [];
-
-    /**
      * 路由信息
      *
      * @var array
@@ -70,26 +63,6 @@ class Route
      * 私有化构造方法
      */
     private function __construct(){}
-
-    /**
-     * 设置路由表
-     *
-     * @param [type] $table [description]
-     */
-    public function setTable(array $table)
-    {
-        $this->table = $table;
-    }
-
-    /**
-     * 获取路由表
-     *
-     * @return [type] [description]
-     */
-    public function getTable()
-    {
-        return $this->table;
-    }
 
     /**
      * 设置路由数据
@@ -217,7 +190,7 @@ class Route
         $append = $this->append;
 
         $parse = $this->parsePattern($pattern);
-        $this->groupPrefix .=  $parse['prefix'];
+        $this->groupPrefix .=  $parse['path'];
         $this->prefix =  $parse['namespace'];
         $this->middleware =  $parse['middleware'];
         $this->append =  $parse['append'];
@@ -242,21 +215,19 @@ class Route
     {
         $parse = $this->parsePattern($pattern);
         // 获取请求路径
-        $path = $this->groupPrefix . $parse['prefix'];
+        $path = $this->groupPrefix . $parse['path'];
         // 获取请求回调
         if(is_string($callback)){
             $callback = (!empty($parse['namespace']) ? $parse['namespace'] : $this->prefix) . $callback;
         }
 
-        // 获取路由标志，记录路由表
-        $name = $this->getName();
-        $this->table[$name] = [
+        $result = [
             'middleware'    => $parse['middleware'],
             'callback'      => $callback,
             'append'        => $parse['append']
         ];
         // 注册fast-route路由表
-        $this->collector()->addRoute($method, $path, $name);
+        $this->collector()->addRoute($method, $path, $result);
 
         return $this;
     }
@@ -271,7 +242,7 @@ class Route
     {
         $res = [
             // 路由路径或者路由前缀
-            'prefix'    => '',
+            'path'    => '',
             // 命名空间
             'namespace' => '',
             // 中间件
@@ -281,24 +252,20 @@ class Route
         ];
         if(is_string($pattern)){
             // 字符串，标示请求路径
-            $res['prefix'] = $pattern;
+            $res['path'] = $pattern;
         }
         elseif(is_array($pattern)){
             // 数组，解析配置
-            if(isset($pattern['prefix']))
-            {
-                $res['prefix'] = $pattern['prefix'];
+            if(isset($pattern['path'])){
+                $res['path'] = $pattern['path'];
             }
-            if(isset($pattern['namespace']))
-            {
+            if(isset($pattern['namespace'])){
                 $res['namespace'] = $pattern['namespace'];
             }
-            if(isset($pattern['middleware']))
-            {
+            if(isset($pattern['middleware'])){
                 $res['middleware'] = $pattern['middleware'];
             }
-            if(isset($pattern['append']))
-            {
+            if(isset($pattern['append'])){
                 $res['append'] = $pattern['append'];
             }
         }
@@ -324,19 +291,6 @@ class Route
 	}
 
     /**
-     * 批量注册路由
-     * 主要用于配置缓存路由使用
-     *
-     * @param  array $router  缓存路由结果集
-     * @return [type]         [description]
-     */
-    public function register(array $router)
-    {
-        $this->setData($router['fast']);
-        $this->setTable($router['api']);
-    }
-
-    /**
      * 获取路由缓存结果集,或者缓存路由
      *
      * @param  [type] $path 缓存文件路径，存在缓存路径则输出缓存文件
@@ -344,11 +298,7 @@ class Route
      */
     public function cache($path = '')
     {
-        $data = [
-            'fast'  => $this->getData(),
-            'api'   => $this->getTable()
-        ];
-
+        $data = $this->getData();
         array_walk_recursive($data, [$this, 'buildClosure']);
         $content = var_export($data, true);
         $content = str_replace(['\'[__start__', '__end__]\''], '', stripcslashes($content));
@@ -369,14 +319,15 @@ class Route
      */
     protected function buildClosure(&$value)
     {
-        if ($value instanceof Closure) {
+        if($value instanceof Closure){
             $reflection = new ReflectionFunction($value);
             $startLine  = $reflection->getStartLine();
             $endLine    = $reflection->getEndLine();
             $file       = $reflection->getFileName();
             $item       = file($file);
             $content    = '';
-            for ($i = $startLine - 1; $i <= $endLine - 1; $i++) {
+            for($i = $startLine - 1, $j = $endLine - 1; $i <= $j; $i++)
+            {
                 $content .= $item[$i];
             }
             $start = strpos($content, 'function');
@@ -384,15 +335,4 @@ class Route
             $value = '[__start__' . substr($content, $start, $end - $start + 1) . '__end__]';
         }
     }
-
-    /**
-     * 获取当前路由的唯一标志
-     *
-     * @return [type] [description]
-     */
-    protected function getName()
-    {
-        return md5(uniqid(mt_rand(), true));
-    }
-
 }

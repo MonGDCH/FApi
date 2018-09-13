@@ -1,54 +1,81 @@
 <?php 
 return array (
-  'fast' => 
+  0 => 
   array (
-    0 => 
+    'GET' => 
     array (
-      'GET' => 
+      '' => 
       array (
-        '/' => '9bdf95c21d27a1d3e27f6c29c74e05b7',
-        '*' => '1c74feb72f145f8cfdf8dd259f1d12c4',
+        'middleware' => 'midd',
+        'callback' => 'Demo@index',
+        'append' => NULL,
       ),
-      'POST' => 
+      '*' => 
       array (
-        '*' => '1c74feb72f145f8cfdf8dd259f1d12c4',
-      ),
-      'PUT' => 
-      array (
-        '*' => '1c74feb72f145f8cfdf8dd259f1d12c4',
-      ),
-      'PATCH' => 
-      array (
-        '*' => '1c74feb72f145f8cfdf8dd259f1d12c4',
-      ),
-      'DELETE' => 
-      array (
-        '*' => '1c74feb72f145f8cfdf8dd259f1d12c4',
-      ),
-      'OPTIONS' => 
-      array (
-        '*' => '1c74feb72f145f8cfdf8dd259f1d12c4',
-      ),
-    ),
-    1 => 
-    array (
-    ),
-  ),
-  'api' => 
-  array (
-    '9bdf95c21d27a1d3e27f6c29c74e05b7' => 
-    array (
-      'middleware' => 'midd',
-      'callback' => 'Demo@index',
-      'append' => NULL,
-    ),
-    '1c74feb72f145f8cfdf8dd259f1d12c4' => 
-    array (
-      'middleware' => NULL,
-      'callback' => function(){
+        'middleware' => NULL,
+        'callback' => function(){
     	echo '*';
     },
-      'append' => NULL,
+        'append' => NULL,
+      ),
     ),
+    'POST' => 
+    array (
+      '*' => 
+      array (
+        'middleware' => NULL,
+        'callback' => function(){
+    	echo '*';
+    },
+        'append' => NULL,
+      ),
+    ),
+    'PUT' => 
+    array (
+      '*' => 
+      array (
+        'middleware' => NULL,
+        'callback' => function(){
+    	echo '*';
+    },
+        'append' => NULL,
+      ),
+    ),
+    'PATCH' => 
+    array (
+      '*' => 
+      array (
+        'middleware' => NULL,
+        'callback' => function(){
+    	echo '*';
+    },
+        'append' => NULL,
+      ),
+    ),
+    'DELETE' => 
+    array (
+      '*' => 
+      array (
+        'middleware' => NULL,
+        'callback' => function(){
+    	echo '*';
+    },
+        'append' => NULL,
+      ),
+    ),
+    'OPTIONS' => 
+    array (
+      '*' => 
+      array (
+        'middleware' => NULL,
+        'callback' => function(){
+    	echo '*';
+    },
+        'append' => NULL,
+      ),
+    ),
+  ),
+  1 => 
+  array (
   ),
 );

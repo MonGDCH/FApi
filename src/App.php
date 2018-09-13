@@ -1,6 +1,7 @@
 <?php
 namespace FApi;
 
+use Closure;
 use FApi\Hook;
 use FApi\Error;
 use FApi\Route;
@@ -279,24 +280,17 @@ class App
 		$this->callback = $callback;
 		// 获取请求参数
 		$this->vars = $vars;
-		// 获取路由映射表
-		$table = $this->route->getTable();
-		if(!isset($table[$this->callback])){
-			throw new RouteException("Route callback is not found", 500);
-		}
-		$item = $table[$this->callback];
-
 		// 获取回调中间件
-		$this->middleware = $item['middleware'];
+		$this->middleware = $this->callback['middleware'];
 		// 获取回调控制器
-		$this->controller = $item['callback'];
+		$this->controller = $this->callback['callback'];
 		// 获取回调后置件
-		$this->append = $item['append'];
+		$this->append = $this->callback['append'];
 
 		// 回调执行前
 		Hook::listen('action_befor', $this);
 
-		try {
+		try{
 			// 执行中间件
 			if($this->middleware){
 				// 存在中间件，执行中间件，绑定参数：路由请求参数和App实例
@@ -306,8 +300,8 @@ class App
 				// 不存在中间件，执行控制器及后置件
 				$result = $this->next();
 			}
-			
-		} catch (JumpException $e) {
+		}
+		catch(JumpException $e){
 			$result =  $e->getResponse();
 		}
 
@@ -324,9 +318,9 @@ class App
 	 * @param  array  $vals   [description]
 	 * @return [type]         [description]
 	 */
-	protected function runKernel($kernel, array $vars = [])
+	protected function runKernel($kernel, $vars = [])
 	{
-		if(is_string($kernel) || is_object($kernel)){
+		if(is_string($kernel) || (is_object($kernel) && !($kernel instanceof Closure))){
 			$kernel = [$this->container->make($kernel), 'handler'];
 		}
 

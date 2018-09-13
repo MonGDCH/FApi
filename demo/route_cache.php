@@ -48,18 +48,16 @@ class Demo{
 
 
 // 缓存路由, path为空获取缓存内容
-
-$cacheRouteFile =  __DIR__ . '/../demo/cacheRoute.php';
+$cacheRouteFile =  __DIR__ . '/cacheRoute.php';
 
 // $res = $app->route->cache();
 // var_dump($res);
 
+// 输入缓存文件
 // $app->route->cache($cacheRouteFile);
 
 
 // 从缓存中获取路由
-$app->route->register(require($cacheRouteFile));
-
-
+$app->route->setData(require($cacheRouteFile));
 
 return $app->run()->send();
