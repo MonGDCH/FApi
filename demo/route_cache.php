@@ -11,23 +11,23 @@ require __DIR__ . '/../vendor/autoload.php';
 $app = \FApi\App::instance()->init();
 
 $app->singleton([
-	'midd'	=> Test::class
+    'midd'  => Test::class
 ]);
 
 class Test{
-	public function handler($vars, $app)
-	{
-		// 获取路由标志定义
-		// var_dump($app->route->getData());
-		// 获取路由回调定义
-		// var_export($app->route->getTable());
-		return $app->next();
-	}
+    public function handler($vars, $app)
+    {
+        // 获取路由标志定义
+        // var_dump($app->route->getData());
+        // 获取路由回调定义
+        // var_export($app->route->getTable());
+        return $app->next();
+    }
 }
 class Demo{
-	public function index(){
-		return  999;
-	}
+    public function index(){
+        return  999;
+    }
 }
 
 /**
@@ -41,7 +41,7 @@ class Demo{
 
 //     // 通配路由，无路由匹配情况下调用的路由
 //     $router->any('*', function(){
-//     	echo '*';
+//      echo '*';
 //     });
 // });
 

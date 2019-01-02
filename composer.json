@@ -1,13 +1,13 @@
 {
     "name": "mongdch/fapi",
     "description": "the php api routing framework",
-    "version" : "1.2.1",
+    "version" : "1.2.2",
     "keywords": [
     	"api",
     	"route",
         "fapi"
     ],
-    "homepage": "http://blog.gdmonlam.com/",
+    "homepage": "http://blog.gdmon.com/",
     "license": "Apache-2.0",
     "authors": [
         {

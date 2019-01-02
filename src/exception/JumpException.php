@@ -11,29 +11,29 @@ use FApi\Response;
 */
 class JumpException extends Exception
 {
-	/**
-	 * 响应类实例
-	 *
-	 * @var [type]
-	 */
-	protected $response;
+    /**
+     * 响应类实例
+     *
+     * @var [type]
+     */
+    protected $response;
 
-	/**
-	 * 构造方法
-	 * @param Response $response [description]
-	 */
-	public function __construct(Response $response)
-	{
-		$this->response = $response;
-	}
+    /**
+     * 构造方法
+     * @param Response $response [description]
+     */
+    public function __construct(Response $response)
+    {
+        $this->response = $response;
+    }
 
-	/**
-	 * 获取响应实例
-	 *
-	 * @return [type] [description]
-	 */
-	public function getResponse()
-	{
-		return $this->response;
-	}
+    /**
+     * 获取响应实例
+     *
+     * @return [type] [description]
+     */
+    public function getResponse()
+    {
+        return $this->response;
+    }
 }

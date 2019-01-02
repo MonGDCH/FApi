@@ -8,32 +8,32 @@ use Exception;
 */
 class RouteException extends Exception
 {
-	/**
-	 * 异常相关数据
-	 *
-	 * @var integer
-	 */
-	protected $data = 500;
+    /**
+     * 异常相关数据
+     *
+     * @var integer
+     */
+    protected $data = 500;
 
-	/**
-	 * 设置异常相关
-	 *
-	 * @param [type] $data [description]
-	 */
-	public function set($data)
-	{
-		$this->data = $data;
+    /**
+     * 设置异常相关
+     *
+     * @param [type] $data [description]
+     */
+    public function set($data)
+    {
+        $this->data = $data;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * 获取相关数据
-	 *
-	 * @return [type] [description]
-	 */
-	public function get()
-	{
-		return $this->data;
-	}
+    /**
+     * 获取相关数据
+     *
+     * @return [type] [description]
+     */
+    public function get()
+    {
+        return $this->data;
+    }
 }

@@ -17,12 +17,12 @@ class Route
 {
     use Instance;
 
-	/**
-	 * fast-route路由容器
-	 *
-	 * @var [type]
-	 */
-	protected $collector;
+    /**
+     * fast-route路由容器
+     *
+     * @var [type]
+     */
+    protected $collector;
 
     /**
      * 路由信息
@@ -98,7 +98,7 @@ class Route
         return $this->collector;
     }
 
-	/**
+    /**
      * 注册GET路由
      *
      * @param  string $pattern  请求模式
@@ -191,7 +191,7 @@ class Route
 
         $parse = $this->parsePattern($pattern);
         $this->groupPrefix .=  $parse['path'];
-        $this->prefix =  $parse['namespace'];
+        $this->prefix = $parse['namespace'];
         $this->middleware =  $parse['middleware'];
         $this->append =  $parse['append'];
 
@@ -244,7 +244,7 @@ class Route
             // 路由路径或者路由前缀
             'path'    => '',
             // 命名空间
-            'namespace' => '',
+            'namespace' => $this->prefix,
             // 中间件
             'middleware'=> $this->middleware,
             // 后置件
@@ -273,22 +273,22 @@ class Route
         return $res;
     }
 
-	/**
-	 * 执行路由
-	 *
-	 * @param  string $method 请求类型
-	 * @param  string $path   请求路径
-	 * @return [type]         [description]
-	 */
-	public function dispatch($method, $path)
-	{
-		if(empty($this->data)){
-			$this->data = $this->collector()->getData();
-		}
-		$dispatch = new Dispatcher($this->data);
+    /**
+     * 执行路由
+     *
+     * @param  string $method 请求类型
+     * @param  string $path   请求路径
+     * @return [type]         [description]
+     */
+    public function dispatch($method, $path)
+    {
+        if(empty($this->data)){
+            $this->data = $this->collector()->getData();
+        }
+        $dispatch = new Dispatcher($this->data);
 
-		return $dispatch->dispatch($method, $path);
-	}
+        return $dispatch->dispatch($method, $path);
+    }
 
     /**
      * 获取路由缓存结果集,或者缓存路由

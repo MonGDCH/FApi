@@ -6,28 +6,28 @@ require '../vendor/autoload.php';
  */
 class TestHook
 {
-	public function handler($err)
-	{
-		var_dump($err);
-		exit();
-	}
+    public function handler($err)
+    {
+        var_dump($err);
+        exit();
+    }
 }
 
 // 增加钩子
 \FApi\Hook::register([
-	'bootstrap'	=> function(){echo 'bootstrap';},
-	'run'		=> function(){echo 'run';},
-	'action_befor' => '',
-	'action_after' => '',
-	'send'		=> function($data){var_dump($data);},
-	'end'		=> function(){echo 'end';},
-	'error'		=> 'TestHook',
+    'bootstrap' => function(){echo 'bootstrap';},
+    'run'       => function(){echo 'run';},
+    'action_befor' => '',
+    'action_after' => '',
+    'send'      => function($data){var_dump($data);},
+    'end'       => function(){echo 'end';},
+    'error'     => 'TestHook',
 ]);
 
 $app = \FApi\App::instance()->init();
 
 $app->route->get('/', function($id = 1){
-	return $id;
+    return $id;
 });
 
 $app->run()->send();

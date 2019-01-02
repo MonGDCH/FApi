@@ -14,10 +14,10 @@ $class = $app->config;
 $class = \FApi\Container::get('config');
 
 $config = [
-	'debug'		=> true,
-	'version'	=> \FApi\App::VERSION,
-	'Auth'		=> 'Mon',
-	'Email'		=> '985558837@qq.com'
+    'debug'     => true,
+    'version'   => \FApi\App::VERSION,
+    'Auth'      => 'Mon',
+    'Email'     => '985558837@qq.com'
 ];
 
 // 批量注册配置
