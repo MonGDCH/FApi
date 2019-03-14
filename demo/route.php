@@ -5,7 +5,7 @@
 require '../vendor/autoload.php';
 
 // 获取应用实例
-$app = \FApi\App::instance()->init();
+$app = \FApi\App::instance()->init(false);
 
 // 函数调用演示
 $app->route->group('', function($route){
@@ -17,7 +17,7 @@ $app->route->group('', function($route){
     // 注册组别路由
     $route->group([
         // 路由前缀
-        'prefix' => '/home', 
+        'path' => '/home', 
         // 路由中间件，注意需要返回$app->next()才会往下执行控制器及后置件
         'middleware' => function($vars, $app){
         if($vars['age'] > 100)
@@ -31,7 +31,7 @@ $app->route->group('', function($route){
         // 重置中间件及后置件
         $r->get([
             // 补充请求后缀
-            'prefix' => '/test',
+            'path' => '/test',
             // 重置中间件
             'middleware' => function($vars, $app){
                 echo "The Middleware is reset here! \r\n<br/>";
@@ -54,7 +54,7 @@ $app->route->group('', function($route){
 });
 
 // 控制器调用演示
-$app->route->group(['prefix' => '/class', 'namespace' => '\App\Controller\\'], function($r){
+$app->route->group(['path' => '/class', 'namespace' => '\App\Controller\\'], function($r){
     $r->get('', 'Index@action');
 });
 

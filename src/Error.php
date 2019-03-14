@@ -2,7 +2,6 @@
 namespace FApi;
 
 use FApi\Hook;
-use FApi\Container;
 use FApi\exception\RouteException;
 
 /**
@@ -26,9 +25,9 @@ class Error
      *
      * @return [type] [description]
      */
-    public static function register()
+    public static function register($debug)
     {
-        self::$debug = Container::get('config')->get('debug', false);
+        self::$debug = $debug;
         // 判断显示所有错误
         !self::$debug or error_reporting(E_ALL);
         // 错误

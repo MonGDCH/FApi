@@ -5,14 +5,13 @@ use Closure;
 use FApi\Hook;
 use FApi\Error;
 use FApi\Route;
-use FApi\Config;
 use FApi\Request;
 use FApi\Response;
-use FApi\Container;
 use FApi\traits\Instance;
 use FApi\exception\RouteException;
 use FApi\exception\JumpException;
 use FastRoute\Dispatcher;
+use mon\factory\Container;
 
 class App
 {
@@ -21,14 +20,14 @@ class App
     /**
      * 版本号
      */
-    const VERSION = '1.2.1';
+    const VERSION = '1.2.3';
 
     /**
      * 启动模式
      *
      * @var [type]
      */
-    protected $debug = null;
+    protected $debug = true;
 
     /**
      * 服务容器实例
@@ -89,8 +88,6 @@ class App
         $this->container = Container::instance();
         // 注册服务
         $this->container->bind([
-            // 注册配置类实例
-            'config'    => Config::instance(),
             // 注册请求类实例
             'request'   => Request::instance(),
             // 注册路由类实例
@@ -113,12 +110,12 @@ class App
      *
      * @return [type] [description]
      */
-    public function init()
+    public function init($debug = true)
     {
         // 设置运行模式
-        $this->container->make('config')->set('debug', ($this->debug !== null) ? boolval($this->debug) : true);
+        $this->debug = boolval($debug);
         // 注册异常处理
-        Error::register();
+        Error::register($this->debug);
         // 应用初始化钩子
         Hook::listen('bootstrap');
 
@@ -126,26 +123,14 @@ class App
     }
 
     /**
-     * 设置调试模式
+     * 判断当前是否为调试模式
      *
      * @param  boolean $debug [description]
      * @return [type]         [description]
      */
-    public function debug($debug = true)
+    public function debug()
     {
-        $this->debug = $debug;
-        return $this;
-    }
-
-    /**
-     * 注册应用配置
-     *
-     * @return [type] [description]
-     */
-    public function register($config = [])
-    {
-        $this->container->make('config')->register($config);
-        return $this;
+        return $this->debug;
     }
 
     /**

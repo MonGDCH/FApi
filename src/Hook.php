@@ -2,7 +2,7 @@
 namespace FApi;
 
 use Closure;
-use FApi\Container;
+use mon\factory\Container;
 
 /**
  * 钩子类

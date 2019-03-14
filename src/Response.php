@@ -2,7 +2,6 @@
 namespace FApi;
 
 USE FApi\Hook;
-use FApi\Container;
 use FApi\exception\ResponseException;
 
 class Response
