@@ -72,7 +72,7 @@ class Request
      *
      * @return [type] [description]
      */
-    public function params($key = '', $default = '', $filter = false)
+    public function params($key = '', $default = '', $filter = true)
     {
         $result = '';
         if(empty($key)){
@@ -96,7 +96,7 @@ class Request
      * @param  string $default [description]
      * @return [type]          [description]
      */
-    public function get($key = '', $default = '', $filter = false)
+    public function get($key = '', $default = '', $filter = true)
     {
         $result = '';
         if(empty($key)){
@@ -120,7 +120,7 @@ class Request
      * @param  string $default [description]
      * @return [type]          [description]
      */
-    public function post($key = '', $default = '', $filter = false)
+    public function post($key = '', $default = '', $filter = true)
     {
         $result = '';
         if(empty($key)){
@@ -237,8 +237,7 @@ class Request
      */
     public function method()
     {
-        if(is_null($this->method))
-        {
+        if(is_null($this->method)){
             if(isset($_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'])){
                 $method = $_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'];
             }
@@ -391,6 +390,7 @@ class Request
     	if(is_null($this->domain)){
             $this->domain = $this->scheme() . '://' . $this->host();
         }
+
         return $this->domain;
     }
 
@@ -401,21 +401,17 @@ class Request
      */
     public function url()
     {
-        if(is_null($this->url))
-        {
-            if (IS_CLI) {
-                $this->url = isset($_SERVER['argv'][1]) ? $_SERVER['argv'][1] : '';
-            }
-            elseif (isset($_SERVER['HTTP_X_REWRITE_URL'])) {
+        if(is_null($this->url)){
+            if(isset($_SERVER['HTTP_X_REWRITE_URL'])){
                 $this->url = $_SERVER['HTTP_X_REWRITE_URL'];
             }
-            elseif (isset($_SERVER['REQUEST_URI'])) {
+            elseif(isset($_SERVER['REQUEST_URI'])){
                 $this->url = $_SERVER['REQUEST_URI'];
             }
-            elseif (isset($_SERVER['ORIG_PATH_INFO'])) {
+            elseif(isset($_SERVER['ORIG_PATH_INFO'])){
                 $this->url = $_SERVER['ORIG_PATH_INFO'] . (!empty($_SERVER['QUERY_STRING']) ? '?' . $_SERVER['QUERY_STRING'] : '');
             }
-            else {
+            else{
                 $this->url = '';
             }
         }
@@ -446,7 +442,7 @@ class Request
      */
     public function uri()
     {
-        if (is_null($this->requestUri)){
+        if(is_null($this->requestUri)){
             $this->requestUri = $this->detectUrl();
         }
 
@@ -499,11 +495,10 @@ class Request
     protected function detectPathInfo()
     {
         // 如果已经包含 PATH_INFO
-        if( !empty($_SERVER['PATH_INFO']) ){
+        if(!empty($_SERVER['PATH_INFO'])){
             return $_SERVER['PATH_INFO'];
         }
-
-        if( '/' === ($requestUri = $this->uri()) ){
+        if('/' === ($requestUri = $this->uri())){
             return '';
         }
 
@@ -514,11 +509,11 @@ class Request
             $requestUri = substr($requestUri, 0, $pos);
         }
 
-        if(! empty($baseUrl)){
-            if( strpos($requestUri, $baseUrl) === 0 ){
+        if(!empty($baseUrl)){
+            if(strpos($requestUri, $baseUrl) === 0){
                 $pathInfo = substr($requestUri, strlen($baseUrl));
             }
-            elseif( strpos($requestUri, $baseUrlEncoded) === 0 ) {
+            elseif(strpos($requestUri, $baseUrlEncoded) === 0){
                 $pathInfo = substr($requestUri, strlen($baseUrlEncoded));
             }
             else{
@@ -579,13 +574,11 @@ class Request
 
         $basename = basename($baseUrl);
 
-        if( empty($basename) ){
+        if(empty($basename)){
             return '';
         }
 
-        if (strlen($requestUri) >= strlen($baseUrl)
-            && (false !== ($pos = strpos($requestUri, $baseUrl)) && $pos !== 0)
-            ) {
+        if(strlen($requestUri) >= strlen($baseUrl) && (false !== ($pos = strpos($requestUri, $baseUrl)) && $pos !== 0)){
             $baseUrl = substr($requestUri, 0, $pos + strlen($baseUrl));
         }
 
@@ -599,18 +592,16 @@ class Request
      */
     protected function detectUrl()
     {
-        if (isset($_SERVER['HTTP_X_ORIGINAL_URL'])){
+        if(isset($_SERVER['HTTP_X_ORIGINAL_URL'])){
             // 带微软重写模块的IIS
             $requestUri = $_SERVER['HTTP_X_ORIGINAL_URL'];
         }
-        elseif(isset($_SERVER['HTTP_X_REWRITE_URL'])) {
+        elseif(isset($_SERVER['HTTP_X_REWRITE_URL'])){
             // 带ISAPI_Rewrite的IIS
             $requestUri = $_SERVER['HTTP_X_REWRITE_URL'];
         }
-        elseif(isset($_SERVER['IIS_WasUrlRewritten'])
-            && $_SERVER['IIS_WasUrlRewritten'] == '1'
-            && isset($_SERVER['UNENCODED_URL'])
-            && $_SERVER['UNENCODED_URL'] != ''
+        elseif(isset($_SERVER['IIS_WasUrlRewritten']) && $_SERVER['IIS_WasUrlRewritten'] == '1' 
+            && isset($_SERVER['UNENCODED_URL']) && $_SERVER['UNENCODED_URL'] != ''
             ){
             // URL重写的IIS7：确保我们得到的未编码的URL(双斜杠的问题)
             $requestUri = $_SERVER['UNENCODED_URL'];
@@ -618,15 +609,14 @@ class Request
         elseif(isset($_SERVER['REQUEST_URI'])){
             $requestUri = $_SERVER['REQUEST_URI'];
             // 只使用URL路径, 不包含scheme、主机[和端口]或者http代理
-            if($requestUri)
-            {
+            if($requestUri){
                 $requestUri = preg_replace('#^[^/:]+://[^/]+#', '', $requestUri);
             }
         }
         elseif(isset($_SERVER['ORIG_PATH_INFO'])){
         	// IIS 5.0, CGI
             $requestUri = $_SERVER['ORIG_PATH_INFO'];
-            if (!empty($_SERVER['QUERY_STRING'])) {
+            if(!empty($_SERVER['QUERY_STRING'])){
                 $requestUri .= '?' . $_SERVER['QUERY_STRING'];
             }
         }

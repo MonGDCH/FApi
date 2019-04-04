@@ -11,8 +11,11 @@ use FastRoute\Dispatcher\GroupCountBased as Dispatcher;
 use FastRoute\RouteCollector;
 
 /**
-* 路由封装
-*/
+ * 路由封装
+ *
+ * @author Mon <985558837@qq.com>
+ * @version v2.0
+ */
 class Route
 {
     use Instance;
@@ -46,18 +49,18 @@ class Route
     protected $prefix = '';
 
     /**
-     * 中间件回调
+     * 路由前置回调(中间件)
      *
      * @var string
      */
-    protected $middleware;
+    protected $befor;
 
     /**
-     * 路由后置
+     * 路由后置回调(后置件)
      *
      * @var [type]
      */
-    protected $append;
+    protected $after;
 
     /**
      * 私有化构造方法
@@ -186,21 +189,21 @@ class Route
     {
         $groupPrefix = $this->groupPrefix;
         $prefix = $this->prefix;
-        $middleware =  $this->middleware;
-        $append = $this->append;
+        $befor  =  $this->befor;
+        $after  = $this->after;
 
         $parse = $this->parsePattern($pattern);
         $this->groupPrefix .=  $parse['path'];
         $this->prefix = $parse['namespace'];
-        $this->middleware =  $parse['middleware'];
-        $this->append =  $parse['append'];
+        $this->befor  =  $parse['befor'];
+        $this->after  =  $parse['after'];
 
         call_user_func($callback, $this);
 
         $this->groupPrefix = $groupPrefix;
         $this->prefix = $prefix;
-        $this->middleware =  $middleware;
-        $this->append = $append;
+        $this->befor  =  $befor;
+        $this->after  = $after;
     }
 
     /**
@@ -222,9 +225,9 @@ class Route
         }
 
         $result = [
-            'middleware'    => $parse['middleware'],
-            'callback'      => $callback,
-            'append'        => $parse['append']
+            'befor'    => $parse['befor'],
+            'callback' => $callback,
+            'after'    => $parse['after']
         ];
         // 注册fast-route路由表
         $this->collector()->addRoute($method, $path, $result);
@@ -242,13 +245,13 @@ class Route
     {
         $res = [
             // 路由路径或者路由前缀
-            'path'    => '',
+            'path'      => '',
             // 命名空间
             'namespace' => $this->prefix,
             // 中间件
-            'middleware'=> $this->middleware,
+            'befor'     => $this->befor,
             // 后置件
-            'append'    => $this->append,
+            'after'     => $this->after,
         ];
         if(is_string($pattern)){
             // 字符串，标示请求路径
@@ -262,11 +265,11 @@ class Route
             if(isset($pattern['namespace'])){
                 $res['namespace'] = $pattern['namespace'];
             }
-            if(isset($pattern['middleware'])){
-                $res['middleware'] = $pattern['middleware'];
+            if(isset($pattern['befor'])){
+                $res['befor'] = $pattern['befor'];
             }
-            if(isset($pattern['append'])){
-                $res['append'] = $pattern['append'];
+            if(isset($pattern['after'])){
+                $res['after'] = $pattern['after'];
             }
         }
 

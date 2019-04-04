@@ -9,7 +9,7 @@ use FApi\exception\RouteException;
  *
  * @author  Mon <985558837@qq.com>
  * @version 2.0
- * @see 修改日志写入逻辑。
+ * @see 2.0 修改日志写入逻辑。
  */
 class Error
 {

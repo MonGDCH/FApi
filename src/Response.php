@@ -209,7 +209,8 @@ class Response
     }
 
     /**
-     * 书数据转换为HTML数据
+     * 数据转换为HTML数据
+     *
      * @return [type] [description]
      */
     protected function toHTML()
@@ -219,6 +220,7 @@ class Response
 
     /**
      * 数据转换为json
+     *
      * @return [type] [description]
      */
     protected function toJson()
@@ -235,13 +237,13 @@ class Response
 
     /**
      * 数据转换为XML
+     *
      * @return [type] [description]
      */
     protected function toXML()
     {
         // XML根节点
-        $root = 'lmf';
-
+        $root = 'Fapi';
         $xml  = "<?xml version=\"1.0\" encoding=\"{$this->charset}\"?>";
         $xml .= "<{$root}>";
         $xml .= $this->XMLFormat($this->data);
@@ -252,6 +254,7 @@ class Response
 
     /**
      * 辅助toXML方法转换数据
+     *
      * @param [type] $data [description]
      */
     protected function XMLFormat($data)

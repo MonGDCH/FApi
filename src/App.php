@@ -20,7 +20,7 @@ class App
     /**
      * 版本号
      */
-    const VERSION = '1.2.3';
+    const VERSION = '1.2.4';
 
     /**
      * 启动模式
@@ -62,7 +62,7 @@ class App
      *
      * @var [type]
      */
-    public $middleware;
+    public $befor;
 
     /**
      * 路由回调控制器
@@ -76,7 +76,7 @@ class App
      *
      * @var [type]
      */
-    public $append;
+    public $after;
 
     /**
      * 构造方法
@@ -224,8 +224,8 @@ class App
         // 执行控制器
         $result = $this->container->invoke($this->controller, $this->vars);
         // 执行后置件
-        if($this->append){
-            $result = $this->runKernel($this->append, $result);
+        if($this->after){
+            $result = $this->runKernel($this->after, $result);
         }
 
         return $result;
@@ -266,20 +266,20 @@ class App
         // 获取请求参数
         $this->vars = $vars;
         // 获取回调中间件
-        $this->middleware = $this->callback['middleware'];
+        $this->befor = $this->callback['befor'];
         // 获取回调控制器
         $this->controller = $this->callback['callback'];
         // 获取回调后置件
-        $this->append = $this->callback['append'];
+        $this->after = $this->callback['after'];
 
         // 回调执行前
         Hook::listen('action_befor', $this);
 
         try{
             // 执行中间件
-            if($this->middleware){
+            if($this->befor){
                 // 存在中间件，执行中间件，绑定参数：路由请求参数和App实例
-                $result = $this->runKernel($this->middleware, $this->vars);
+                $result = $this->runKernel($this->befor, $this->vars);
             }
             else{
                 // 不存在中间件，执行控制器及后置件
