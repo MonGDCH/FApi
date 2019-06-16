@@ -3,8 +3,6 @@ namespace FApi;
 
 use Closure;
 use ReflectionFunction;
-use FApi\traits\Instance;
-use FApi\exception\RouteException;
 use FastRoute\RouteParser\Std;
 use FastRoute\DataGenerator\GroupCountBased;
 use FastRoute\Dispatcher\GroupCountBased as Dispatcher;
@@ -18,7 +16,12 @@ use FastRoute\RouteCollector;
  */
 class Route
 {
-    use Instance;
+    /**
+     * 对象单例
+     *
+     * @var [type]
+     */
+    protected static $instance;
 
     /**
      * fast-route路由容器
@@ -65,12 +68,27 @@ class Route
     /**
      * 私有化构造方法
      */
-    private function __construct(){}
+    private function __construct()
+    { }
+
+    /**
+     * 获取实例
+     *
+     * @return [type]         [description]
+     */
+    public static function instance()
+    {
+        if (is_null(self::$instance)) {
+            self::$instance = new self();
+        }
+
+        return self::$instance;
+    }
 
     /**
      * 设置路由数据
      *
-     * @param array $data [description]
+     * @param array $data 路由数据
      */
     public function setData(array $data)
     {
@@ -94,7 +112,7 @@ class Route
      */
     public function collector()
     {
-        if(is_null($this->collector)){
+        if (is_null($this->collector)) {
             $this->collector = new RouteCollector(new Std, new GroupCountBased);
         }
 
@@ -220,7 +238,7 @@ class Route
         // 获取请求路径
         $path = $this->groupPrefix . $parse['path'];
         // 获取请求回调
-        if(is_string($callback)){
+        if (is_string($callback)) {
             $callback = (!empty($parse['namespace']) ? $parse['namespace'] : $this->prefix) . $callback;
         }
 
@@ -238,7 +256,7 @@ class Route
     /**
      * 解析请求模式
      *
-     * @param  [type] $pattern [description]
+     * @param  [type] $pattern 路由参数
      * @return [type]          [description]
      */
     protected function parsePattern($pattern)
@@ -253,22 +271,21 @@ class Route
             // 后置件
             'after'     => $this->after,
         ];
-        if(is_string($pattern)){
+        if (is_string($pattern)) {
             // 字符串，标示请求路径
             $res['path'] = $pattern;
-        }
-        elseif(is_array($pattern)){
+        } elseif (is_array($pattern)) {
             // 数组，解析配置
-            if(isset($pattern['path'])){
+            if (isset($pattern['path'])) {
                 $res['path'] = $pattern['path'];
             }
-            if(isset($pattern['namespace'])){
+            if (isset($pattern['namespace'])) {
                 $res['namespace'] = $pattern['namespace'];
             }
-            if(isset($pattern['befor'])){
+            if (isset($pattern['befor'])) {
                 $res['befor'] = $pattern['befor'];
             }
-            if(isset($pattern['after'])){
+            if (isset($pattern['after'])) {
                 $res['after'] = $pattern['after'];
             }
         }
@@ -285,7 +302,7 @@ class Route
      */
     public function dispatch($method, $path)
     {
-        if(empty($this->data)){
+        if (empty($this->data)) {
             $this->data = $this->collector()->getData();
         }
         $dispatch = new Dispatcher($this->data);
@@ -306,7 +323,7 @@ class Route
         $content = var_export($data, true);
         $content = str_replace(['\'[__start__', '__end__]\''], '', stripcslashes($content));
         // 不存在缓存文件路径，返回缓存结果集
-        if(empty($path)){
+        if (empty($path)) {
             return $content;
         }
         // 缓存路由文件
@@ -317,20 +334,19 @@ class Route
     /**
      * 生成路由内容
      *
-     * @param  [type] &$value [description]
+     * @param  [type] &$value 路由内容
      * @return [type]         [description]
      */
     protected function buildClosure(&$value)
     {
-        if($value instanceof Closure){
+        if ($value instanceof Closure) {
             $reflection = new ReflectionFunction($value);
             $startLine  = $reflection->getStartLine();
             $endLine    = $reflection->getEndLine();
             $file       = $reflection->getFileName();
             $item       = file($file);
             $content    = '';
-            for($i = $startLine - 1, $j = $endLine - 1; $i <= $j; $i++)
-            {
+            for ($i = $startLine - 1, $j = $endLine - 1; $i <= $j; $i++) {
                 $content .= $item[$i];
             }
             $start = strpos($content, 'function');

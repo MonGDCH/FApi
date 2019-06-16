@@ -1,8 +1,6 @@
 <?php
 namespace FApi;
 
-use FApi\traits\Instance;
-
 /**
  * 请求类
  *
@@ -11,7 +9,12 @@ use FApi\traits\Instance;
  */
 class Request
 {
-    use Instance;
+    /**
+     * 对象单例
+     *
+     * @var [type]
+     */
+    protected static $instance;
 
     /**
      * 请求类型
@@ -65,7 +68,22 @@ class Request
     /**
      * 私有化构造方法
      */
-    private function __construct(){}
+    private function __construct()
+    { }
+
+    /**
+     * 获取实例
+     *
+     * @return [type]         [description]
+     */
+    public static function instance()
+    {
+        if (is_null(self::$instance)) {
+            self::$instance = new self();
+        }
+
+        return self::$instance;
+    }
 
     /**
      * 获取传参
@@ -75,14 +93,13 @@ class Request
     public function params($key = '', $default = '', $filter = true)
     {
         $result = '';
-        if(empty($key)){
+        if (empty($key)) {
             $result = $_REQUEST;
-        }
-        else{
+        } else {
             $result = (isset($_REQUEST[$key])) ? $_REQUEST[$key] : $default;
         }
 
-        if($filter){
+        if ($filter) {
             $result = $this->filter($result);
         }
 
@@ -99,14 +116,13 @@ class Request
     public function get($key = '', $default = '', $filter = true)
     {
         $result = '';
-        if(empty($key)){
+        if (empty($key)) {
             $result = $_GET;
-        }
-        else{
+        } else {
             $result = (isset($_GET[$key])) ? $_GET[$key] : $default;
         }
 
-        if($filter){
+        if ($filter) {
             $result = $this->filter($result);
         }
 
@@ -123,14 +139,13 @@ class Request
     public function post($key = '', $default = '', $filter = true)
     {
         $result = '';
-        if(empty($key)){
+        if (empty($key)) {
             $result = $_POST;
-        }
-        else{
+        } else {
             $result = (isset($_POST[$key])) ? $_POST[$key] : $default;
         }
 
-        if($filter){
+        if ($filter) {
             $result = $this->filter($result);
         }
 
@@ -146,13 +161,11 @@ class Request
      */
     public function filter($input, $tags = '')
     {
-        if(is_array($input)){
-            foreach($input as &$v)
-            {
+        if (is_array($input)) {
+            foreach ($input as &$v) {
                 $v = strip_tags($v, $tags);
             }
-        }
-        else{
+        } else {
             $input = strip_tags($input, $tags);
         }
 
@@ -169,10 +182,9 @@ class Request
     public function server($key = '', $default = '')
     {
         $result = '';
-        if(empty($key)){
+        if (empty($key)) {
             $result = $_SERVER;
-        }
-        else{
+        } else {
             $result = (isset($_SERVER[$key])) ? $_SERVER[$key] : $default;
         }
 
@@ -220,9 +232,8 @@ class Request
     {
         $keys = array('X_FORWARDED_FOR', 'HTTP_X_FORWARDED_FOR', 'CLIENT_IP', 'REMOTE_ADDR');
 
-        foreach($keys as $key)
-        {
-            if(isset($_SERVER[$key])){
+        foreach ($keys as $key) {
+            if (isset($_SERVER[$key])) {
                 return $_SERVER[$key];
             }
         }
@@ -237,11 +248,10 @@ class Request
      */
     public function method()
     {
-        if(is_null($this->method)){
-            if(isset($_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'])){
+        if (is_null($this->method)) {
+            if (isset($_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'])) {
                 $method = $_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'];
-            }
-            else{
+            } else {
                 // 默认GET方法访问
                 $method = isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'GET';
             }
@@ -341,17 +351,16 @@ class Request
      */
     public function isMobile()
     {
-        if(isset($_SERVER['HTTP_VIA']) && stristr($_SERVER['HTTP_VIA'], "wap")){
+        if (isset($_SERVER['HTTP_VIA']) && stristr($_SERVER['HTTP_VIA'], "wap")) {
             return true;
-        }
-        elseif(isset($_SERVER['HTTP_ACCEPT']) && strpos(strtoupper($_SERVER['HTTP_ACCEPT']), "VND.WAP.WML")){
+        } elseif (isset($_SERVER['HTTP_ACCEPT']) && strpos(strtoupper($_SERVER['HTTP_ACCEPT']), "VND.WAP.WML")) {
             return true;
-        }
-        elseif(isset($_SERVER['HTTP_X_WAP_PROFILE']) || isset($_SERVER['HTTP_PROFILE'])){
+        } elseif (isset($_SERVER['HTTP_X_WAP_PROFILE']) || isset($_SERVER['HTTP_PROFILE'])) {
             return true;
-        }
-        elseif(isset($_SERVER['HTTP_USER_AGENT']) 
-            && preg_match('/(blackberry|configuration\/cldc|hp |hp-|htc |htc_|htc-|iemobile|kindle|midp|mmp|motorola|mobile|nokia|opera mini|opera |Googlebot-Mobile|YahooSeeker\/M1A1-R2D2|android|iphone|ipod|mobi|palm|palmos|pocket|portalmmm|ppc;|smartphone|sonyericsson|sqh|spv|symbian|treo|up.browser|up.link|vodafone|windows ce|xda |xda_)/i', $_SERVER['HTTP_USER_AGENT'])){
+        } elseif (
+            isset($_SERVER['HTTP_USER_AGENT'])
+            && preg_match('/(blackberry|configuration\/cldc|hp |hp-|htc |htc_|htc-|iemobile|kindle|midp|mmp|motorola|mobile|nokia|opera mini|opera |Googlebot-Mobile|YahooSeeker\/M1A1-R2D2|android|iphone|ipod|mobi|palm|palmos|pocket|portalmmm|ppc;|smartphone|sonyericsson|sqh|spv|symbian|treo|up.browser|up.link|vodafone|windows ce|xda |xda_)/i', $_SERVER['HTTP_USER_AGENT'])
+        ) {
             return true;
         }
 
@@ -365,16 +374,13 @@ class Request
      */
     public function isSsl()
     {
-        if(isset($_SERVER['HTTPS']) && ('1' == $_SERVER['HTTPS'] || 'on' == strtolower($_SERVER['HTTPS']))){
+        if (isset($_SERVER['HTTPS']) && ('1' == $_SERVER['HTTPS'] || 'on' == strtolower($_SERVER['HTTPS']))) {
             return true;
-        }
-        elseif(isset($_SERVER['REQUEST_SCHEME']) && 'https' == $_SERVER['REQUEST_SCHEME']){
+        } elseif (isset($_SERVER['REQUEST_SCHEME']) && 'https' == $_SERVER['REQUEST_SCHEME']) {
             return true;
-        }
-        elseif(isset($_SERVER['SERVER_PORT']) && ('443' == $_SERVER['SERVER_PORT'])){
+        } elseif (isset($_SERVER['SERVER_PORT']) && ('443' == $_SERVER['SERVER_PORT'])) {
             return true;
-        }
-        elseif(isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && 'https' == $_SERVER['HTTP_X_FORWARDED_PROTO']){
+        } elseif (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && 'https' == $_SERVER['HTTP_X_FORWARDED_PROTO']) {
             return true;
         }
 
@@ -387,7 +393,7 @@ class Request
      */
     public function domain()
     {
-    	if(is_null($this->domain)){
+        if (is_null($this->domain)) {
             $this->domain = $this->scheme() . '://' . $this->host();
         }
 
@@ -401,17 +407,14 @@ class Request
      */
     public function url()
     {
-        if(is_null($this->url)){
-            if(isset($_SERVER['HTTP_X_REWRITE_URL'])){
+        if (is_null($this->url)) {
+            if (isset($_SERVER['HTTP_X_REWRITE_URL'])) {
                 $this->url = $_SERVER['HTTP_X_REWRITE_URL'];
-            }
-            elseif(isset($_SERVER['REQUEST_URI'])){
+            } elseif (isset($_SERVER['REQUEST_URI'])) {
                 $this->url = $_SERVER['REQUEST_URI'];
-            }
-            elseif(isset($_SERVER['ORIG_PATH_INFO'])){
+            } elseif (isset($_SERVER['ORIG_PATH_INFO'])) {
                 $this->url = $_SERVER['ORIG_PATH_INFO'] . (!empty($_SERVER['QUERY_STRING']) ? '?' . $_SERVER['QUERY_STRING'] : '');
-            }
-            else{
+            } else {
                 $this->url = '';
             }
         }
@@ -426,7 +429,7 @@ class Request
      */
     public function debaseUrl()
     {
-        if(!$this->debaseUrl){
+        if (!$this->debaseUrl) {
             $str = $this->url();
             $request = parse_url($str);
             $this->debaseUrl = $request['path'];
@@ -442,7 +445,7 @@ class Request
      */
     public function uri()
     {
-        if(is_null($this->requestUri)){
+        if (is_null($this->requestUri)) {
             $this->requestUri = $this->detectUrl();
         }
 
@@ -456,7 +459,7 @@ class Request
      */
     public function pathInfo()
     {
-        if(is_null($this->pathInfo)){
+        if (is_null($this->pathInfo)) {
             $pathInfo = $this->detectPathInfo();
             // 去除重复的"/"
             $this->pathInfo = preg_replace('/[\/]+/', '/', $pathInfo);
@@ -480,7 +483,7 @@ class Request
      */
     public function baseUrl($raw = false)
     {
-        if(is_null($this->baseUrl)){
+        if (is_null($this->baseUrl)) {
             $this->baseUrl = rtrim($this->detectBaseUrl(), '/');
         }
 
@@ -495,32 +498,29 @@ class Request
     protected function detectPathInfo()
     {
         // 如果已经包含 PATH_INFO
-        if(!empty($_SERVER['PATH_INFO'])){
+        if (!empty($_SERVER['PATH_INFO'])) {
             return $_SERVER['PATH_INFO'];
         }
-        if('/' === ($requestUri = $this->uri())){
+        if ('/' === ($requestUri = $this->uri())) {
             return '';
         }
 
         $baseUrl = $this->baseUrl();
         $baseUrlEncoded = urlencode($baseUrl);
 
-        if($pos = strpos($requestUri, '?')){
+        if ($pos = strpos($requestUri, '?')) {
             $requestUri = substr($requestUri, 0, $pos);
         }
 
-        if(!empty($baseUrl)){
-            if(strpos($requestUri, $baseUrl) === 0){
+        if (!empty($baseUrl)) {
+            if (strpos($requestUri, $baseUrl) === 0) {
                 $pathInfo = substr($requestUri, strlen($baseUrl));
-            }
-            elseif(strpos($requestUri, $baseUrlEncoded) === 0){
+            } elseif (strpos($requestUri, $baseUrlEncoded) === 0) {
                 $pathInfo = substr($requestUri, strlen($baseUrlEncoded));
-            }
-            else{
+            } else {
                 $pathInfo = $requestUri;
             }
-        }
-        else{
+        } else {
             $pathInfo = $requestUri;
         }
 
@@ -538,22 +538,19 @@ class Request
         $baseUrl        = '';
         $fileName       = isset($_SERVER['SCRIPT_FILENAME']) ? $_SERVER['SCRIPT_FILENAME'] : '';
         $scriptName     = isset($_SERVER['SCRIPT_NAME']) ? $_SERVER['SCRIPT_NAME'] : null;
-        $phpSelf        = isset($_SERVER['PHP_SELF']) ? $_SERVER['PHP_SELF']: null;
-        $origScriptName = isset($_SERVER['ORIG_SCRIPT_NAME']) ? $_SERVER['ORIG_SCRIPT_NAME']: null;
+        $phpSelf        = isset($_SERVER['PHP_SELF']) ? $_SERVER['PHP_SELF'] : null;
+        $origScriptName = isset($_SERVER['ORIG_SCRIPT_NAME']) ? $_SERVER['ORIG_SCRIPT_NAME'] : null;
 
-        if($scriptName !== null && basename($scriptName) === $fileName){
+        if ($scriptName !== null && basename($scriptName) === $fileName) {
             $baseUrl = $scriptName;
-        }
-        elseif($phpSelf !== null && basename($phpSelf) === $fileName){
+        } elseif ($phpSelf !== null && basename($phpSelf) === $fileName) {
             $baseUrl = $phpSelf;
-        }
-        elseif($origScriptName !== null && basename($origScriptName) === $fileName){
+        } elseif ($origScriptName !== null && basename($origScriptName) === $fileName) {
             $baseUrl = $origScriptName;
-        }
-        else{
+        } else {
             $baseUrl  = '/';
             $basename = basename($fileName);
-            if($basename){
+            if ($basename) {
                 $path     = ($phpSelf ? trim($phpSelf, '/') : '');
                 $baseUrl .= substr($path, 0, strpos($path, $basename)) . $basename;
             }
@@ -563,22 +560,22 @@ class Request
         $requestUri = $this->uri();
 
         // 与请求的URI一样?
-        if(0 === strpos($requestUri, $baseUrl)){
+        if (0 === strpos($requestUri, $baseUrl)) {
             return $baseUrl;
         }
 
         $baseDir = str_replace('\\', '/', dirname($baseUrl));
-        if(0 === strpos($requestUri, $baseDir)){
+        if (0 === strpos($requestUri, $baseDir)) {
             return $baseDir;
         }
 
         $basename = basename($baseUrl);
 
-        if(empty($basename)){
+        if (empty($basename)) {
             return '';
         }
 
-        if(strlen($requestUri) >= strlen($baseUrl) && (false !== ($pos = strpos($requestUri, $baseUrl)) && $pos !== 0)){
+        if (strlen($requestUri) >= strlen($baseUrl) && (false !== ($pos = strpos($requestUri, $baseUrl)) && $pos !== 0)) {
             $baseUrl = substr($requestUri, 0, $pos + strlen($baseUrl));
         }
 
@@ -592,39 +589,34 @@ class Request
      */
     protected function detectUrl()
     {
-        if(isset($_SERVER['HTTP_X_ORIGINAL_URL'])){
+        if (isset($_SERVER['HTTP_X_ORIGINAL_URL'])) {
             // 带微软重写模块的IIS
             $requestUri = $_SERVER['HTTP_X_ORIGINAL_URL'];
-        }
-        elseif(isset($_SERVER['HTTP_X_REWRITE_URL'])){
+        } elseif (isset($_SERVER['HTTP_X_REWRITE_URL'])) {
             // 带ISAPI_Rewrite的IIS
             $requestUri = $_SERVER['HTTP_X_REWRITE_URL'];
-        }
-        elseif(isset($_SERVER['IIS_WasUrlRewritten']) && $_SERVER['IIS_WasUrlRewritten'] == '1' 
+        } elseif (
+            isset($_SERVER['IIS_WasUrlRewritten']) && $_SERVER['IIS_WasUrlRewritten'] == '1'
             && isset($_SERVER['UNENCODED_URL']) && $_SERVER['UNENCODED_URL'] != ''
-            ){
+        ) {
             // URL重写的IIS7：确保我们得到的未编码的URL(双斜杠的问题)
             $requestUri = $_SERVER['UNENCODED_URL'];
-        }
-        elseif(isset($_SERVER['REQUEST_URI'])){
+        } elseif (isset($_SERVER['REQUEST_URI'])) {
             $requestUri = $_SERVER['REQUEST_URI'];
             // 只使用URL路径, 不包含scheme、主机[和端口]或者http代理
-            if($requestUri){
+            if ($requestUri) {
                 $requestUri = preg_replace('#^[^/:]+://[^/]+#', '', $requestUri);
             }
-        }
-        elseif(isset($_SERVER['ORIG_PATH_INFO'])){
-        	// IIS 5.0, CGI
+        } elseif (isset($_SERVER['ORIG_PATH_INFO'])) {
+            // IIS 5.0, CGI
             $requestUri = $_SERVER['ORIG_PATH_INFO'];
-            if(!empty($_SERVER['QUERY_STRING'])){
+            if (!empty($_SERVER['QUERY_STRING'])) {
                 $requestUri .= '?' . $_SERVER['QUERY_STRING'];
             }
-        }
-        else{
+        } else {
             $requestUri = '/';
         }
 
         return $requestUri;
     }
-
 }

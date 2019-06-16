@@ -31,7 +31,7 @@ class Hook
     /**
      * 批量注册钩子
      *
-     * @param  array  $tags [description]
+     * @param  array  $tags 钩子标识
      * @return [type]       [description]
      */
     public static function register(array $tags)
@@ -54,16 +54,15 @@ class Hook
     /**
      * 获取钩子信息
      *
-     * @param  string $tag [description]
+     * @param  string $tag 钩子名称
      * @return [type]      [description]
      */
     public static function get($tag = '')
     {
-        if(empty($tag)){
+        if (empty($tag)) {
             //获取全部的插件信息
             return self::$tags;
-        }
-        else{
+        } else {
             return array_key_exists($tag, self::$tags) ? self::$tags[$tag] : [];
         }
     }
@@ -71,8 +70,8 @@ class Hook
     /**
      * 监听&执行行为
      *
-     * @param  [type] $tag     [description]
-     * @param  [type] &$params [description]
+     * @param  [type] $tag     钩子名称
+     * @param  [type] &$params 参数
      * @return [type]          [description]
      */
     public static function listen($tag, &$params = null)
@@ -80,10 +79,9 @@ class Hook
         $tags = static::get($tag);
 
         $results = [];
-        foreach($tags as $k => $v)
-        {
+        foreach ($tags as $k => $v) {
             $results[$k] = self::exec($v, $k, $params);
-            if($results[$k] === false){
+            if ($results[$k] === false) {
                 // 如果返回false 则中断行为执行
                 break;
             }
@@ -95,18 +93,17 @@ class Hook
     /**
      * 执行一个行为
      *
-     * @param  [type] $class   [description]
-     * @param  string $tag     [description]
-     * @param  [type] &$params [description]
+     * @param  [type] $class   行为回调
+     * @param  string $tag     钩子名称
+     * @param  [type] &$params 参数
      * @return [type]          [description]
      */
     public static function exec($class, $tag = '', &$params = null)
     {
-        if($class instanceof Closure){
+        if ($class instanceof Closure) {
             // 匿名回调
             return call_user_func_array($class, [$params]);
-        }
-        elseif(is_string($class) && !empty($class)){
+        } elseif (is_string($class) && !empty($class)) {
             return Container::instance()->invokeMethd([$class, 'handler'], [$params]);
         }
     }

@@ -7,7 +7,6 @@ use FApi\Error;
 use FApi\Route;
 use FApi\Request;
 use FApi\Response;
-use FApi\traits\Instance;
 use FApi\exception\RouteException;
 use FApi\exception\JumpException;
 use FastRoute\Dispatcher;
@@ -15,12 +14,17 @@ use mon\factory\Container;
 
 class App
 {
-    use Instance;
+    /**
+     * 对象单例
+     *
+     * @var [type]
+     */
+    protected static $instance;
 
     /**
      * 版本号
      */
-    const VERSION = '1.2.4';
+    const VERSION = '1.3.0';
 
     /**
      * 启动模式
@@ -96,6 +100,20 @@ class App
     }
 
     /**
+     * 获取实例
+     *
+     * @return [type]         [description]
+     */
+    public static function instance()
+    {
+        if (is_null(self::$instance)) {
+            self::$instance = new self();
+        }
+
+        return self::$instance;
+    }
+
+    /**
      * 魔术属性支持
      *
      * @return [type] [description]
@@ -108,7 +126,8 @@ class App
     /**
      * 初始化应用
      *
-     * @return [type] [description]
+     * @param boolean $debug    是否为调试模式
+     * @return void
      */
     public function init($debug = true)
     {
@@ -125,7 +144,6 @@ class App
     /**
      * 判断当前是否为调试模式
      *
-     * @param  boolean $debug [description]
      * @return [type]         [description]
      */
     public function debug()
@@ -136,8 +154,8 @@ class App
     /**
      * 注册服务
      *
-     * @param  [type] $abstract [description]
-     * @param  [type] $server   [description]
+     * @param  [type] $abstract 服务标识
+     * @param  [type] $server   服务实例
      * @return [type]           [description]
      */
     public function singleton($abstract, $server = null)
@@ -149,7 +167,8 @@ class App
     /**
      * 定义应用钩子
      *
-     * @return [type] [description]
+     * @param array $tags   钩子标识
+     * @return void
      */
     public function definition($tags = [])
     {
@@ -184,23 +203,23 @@ class App
         // 解析路由
         $callback = $this->route->dispatch($method, $path);
         switch ($callback[0]) {
-            // 200 匹配请求
-            case Dispatcher::FOUND: 
+                // 200 匹配请求
+            case Dispatcher::FOUND:
                 // 执行路由响应
                 $this->result = $this->runHandler($callback[1], $callback[2]);
                 // 返回响应类实例
                 return $this->response($this->result);
 
-            // 405 Method Not Allowed  方法不允许
+                // 405 Method Not Allowed  方法不允许
             case Dispatcher::METHOD_NOT_ALLOWED:
                 // 允许调用的请求类型
                 $allowedMethods = $callback[1];
                 throw (new RouteException("Route method is not found", 403))->set($allowedMethods);
 
-            // 404 Not Found 没找到对应的方法
+                // 404 Not Found 没找到对应的方法
             case Dispatcher::NOT_FOUND:
                 $default = $this->container->route->dispatch($method, '*');
-                if($default[0] === Dispatcher::FOUND){
+                if ($default[0] === Dispatcher::FOUND) {
                     // 存在自定义的默认处理路由
                     $this->result = $this->runHandler($default[1], $default[2]);
                     // 返回响应类实例
@@ -208,7 +227,7 @@ class App
                 }
                 throw new RouteException("Route is not found", 404);
 
-            // 不存在路由定义
+                // 不存在路由定义
             default:
                 throw new RouteException("Route is not found", 404);
         }
@@ -224,7 +243,7 @@ class App
         // 执行控制器
         $result = $this->container->invoke($this->controller, $this->vars);
         // 执行后置件
-        if($this->after){
+        if ($this->after) {
             $result = $this->runKernel($this->after, $result);
         }
 
@@ -239,13 +258,11 @@ class App
      */
     public function response($result = '')
     {
-        if($result instanceof Response){
+        if ($result instanceof Response) {
             $response = $result;
-        }
-        elseif(!is_null($result)){
+        } elseif (!is_null($result)) {
             $response = Response::create($result);
-        }
-        else{
+        } else {
             $response = Response::create();
         }
 
@@ -275,18 +292,16 @@ class App
         // 回调执行前
         Hook::listen('action_befor', $this);
 
-        try{
+        try {
             // 执行中间件
-            if($this->befor){
+            if ($this->befor) {
                 // 存在中间件，执行中间件，绑定参数：路由请求参数和App实例
                 $result = $this->runKernel($this->befor, $this->vars);
-            }
-            else{
+            } else {
                 // 不存在中间件，执行控制器及后置件
                 $result = $this->next();
             }
-        }
-        catch(JumpException $e){
+        } catch (JumpException $e) {
             $result =  $e->getResponse();
         }
 
@@ -299,13 +314,13 @@ class App
     /**
      * 执行请求组件
      *
-     * @param  [type] $kernel [description]
-     * @param  array  $vals   [description]
+     * @param  [type] $kernel 中间件
+     * @param  array  $vals   参数
      * @return [type]         [description]
      */
     protected function runKernel($kernel, $vars = [])
     {
-        if(is_string($kernel) || (is_object($kernel) && !($kernel instanceof Closure))){
+        if (is_string($kernel) || (is_object($kernel) && !($kernel instanceof Closure))) {
             $kernel = [$this->container->make($kernel), 'handler'];
         }
 

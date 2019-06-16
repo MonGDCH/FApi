@@ -23,9 +23,10 @@ class Error
     /**
      * 注册异常处理接管
      *
-     * @return [type] [description]
+     * @param boolean $debug    是否为调试模式
+     * @return void
      */
-    public static function register($debug)
+    public static function register(bool $debug)
     {
         self::$debug = $debug;
         // 判断显示所有错误
@@ -46,13 +47,12 @@ class Error
     public static function fatalError()
     {
         $error = error_get_last() ?: null;
-        if(!is_null($error) && in_array($error['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR, E_USER_ERROR])){
+        if (!is_null($error) && in_array($error['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR, E_USER_ERROR])) {
             // 应用错误
             $error['level'] = 'error';
             Hook::listen('error', $error);
             self::halt($error);
-        }
-        else{
+        } else {
             // 应用结束
             Hook::listen('end');
         }
@@ -85,7 +85,8 @@ class Error
     /**
      * 应用异常
      *
-     * @return [type] [description]
+     * @param [type] $e 异常实例
+     * @return void
      */
     public static function appException($e)
     {
@@ -94,7 +95,7 @@ class Error
         $error['file']      = $e->getFile();
         $error['line']      = $e->getLine();
         $trace = $e->getTrace();
-        if(isset($trace[0]) && !empty($trace[0]['function']) && $trace[0]['function'] == 'exception') {
+        if (isset($trace[0]) && !empty($trace[0]['function']) && $trace[0]['function'] == 'exception') {
             $error['file'] = $trace[0]['file'];
             $error['line'] = $trace[0]['line'];
         }
@@ -109,7 +110,10 @@ class Error
 
     /**
      * 异常输出
-     * @return [type] [description]
+     *
+     * @param [type] $error 错误信息
+     * @param integer $code 错误码
+     * @return void
      */
     public static function halt($error, $code = 500)
     {
@@ -117,7 +121,7 @@ class Error
         ob_get_contents() && ob_end_clean();
         http_response_code($code);
         // 调试模式, 引入错误提示模板
-        if(self::$debug){
+        if (self::$debug) {
             include __DIR__ . '/tpl/exception.tpl';
         }
         // 非调试模式，不返回

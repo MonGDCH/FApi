@@ -96,7 +96,7 @@ class Response
     public function header($name, $val = null)
     {
         if(is_array($name)){
-            $this->header = array_merge($this->header, $name);
+            $this->header = array_merge($this->header, (array)$name);
         }
         else{
             $this->header[$name] = $val;
