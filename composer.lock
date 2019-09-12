@@ -4,24 +4,24 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "dff6a57e14321836e1e91d2a3c7de098",
+    "content-hash": "96f1286af8eec268b6a81ad72a75326c",
     "packages": [
         {
             "name": "mongdch/mon-container",
-            "version": "1.0.0",
+            "version": "1.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/MonGDCH/mon-container.git",
-                "reference": "592fdd831dba4872b4d9a1e23d1fce1a7cca6014"
+                "reference": "cae30a0fce957ef1c9df5a4dbe8f2fd46bfee374"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/MonGDCH/mon-container/zipball/592fdd831dba4872b4d9a1e23d1fce1a7cca6014",
-                "reference": "592fdd831dba4872b4d9a1e23d1fce1a7cca6014",
+                "url": "https://api.github.com/repos/MonGDCH/mon-container/zipball/cae30a0fce957ef1c9df5a4dbe8f2fd46bfee374",
+                "reference": "cae30a0fce957ef1c9df5a4dbe8f2fd46bfee374",
                 "shasum": "",
                 "mirrors": [
                     {
-                        "url": "https://dl.laravel-china.org/%package%/%reference%.%type%",
+                        "url": "https://mirrors.aliyun.com/composer/dists/%package%/%reference%.%type%",
                         "preferred": true
                     }
                 ]
@@ -51,7 +51,7 @@
                 "factory",
                 "php"
             ],
-            "time": "2019-03-13T09:24:10+00:00"
+            "time": "2019-06-24T06:02:58+00:00"
         },
         {
             "name": "nikic/fast-route",
@@ -68,7 +68,7 @@
                 "shasum": "",
                 "mirrors": [
                     {
-                        "url": "https://dl.laravel-china.org/%package%/%reference%.%type%",
+                        "url": "https://mirrors.aliyun.com/composer/dists/%package%/%reference%.%type%",
                         "preferred": true
                     }
                 ]

@@ -1,4 +1,5 @@
 <?php
+
 namespace FApi;
 
 /**
@@ -159,17 +160,13 @@ class Request
      * @param  [type] $tags  不被去除的字符
      * @return [type]        [description]
      */
-    public function filter($input, $tags = '')
+    public function filter($input)
     {
         if (is_array($input)) {
-            foreach ($input as &$v) {
-                $v = strip_tags($v, $tags);
-            }
+            return filter_var_array((array)$input, FILTER_SANITIZE_STRING);
         } else {
-            $input = strip_tags($input, $tags);
+            return filter_var($input, FILTER_SANITIZE_STRING);
         }
-
-        return $input;
     }
 
     /**

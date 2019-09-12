@@ -1,4 +1,5 @@
 <?php
+
 namespace FApi;
 
 use FApi\Hook;
@@ -26,7 +27,7 @@ class Error
      * @param boolean $debug    是否为调试模式
      * @return void
      */
-    public static function register(bool $debug)
+    public static function register($debug)
     {
         self::$debug = $debug;
         // 判断显示所有错误

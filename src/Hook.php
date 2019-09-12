@@ -1,4 +1,5 @@
 <?php
+
 namespace FApi;
 
 use Closure;

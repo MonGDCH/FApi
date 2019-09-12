@@ -1,4 +1,5 @@
 <?php
+
 namespace FApi;
 
 use FApi\Request;
@@ -140,9 +141,9 @@ class Url
      * @param  array   $header 响应头
      * @return [type]          [description]
      */
-    public function redirect(string $url = '', int $code = 302, array $header = [])
+    public function redirect($url = '', array $vars = [], $code = 302, array $header = [])
     {
-        $header['Location'] = $url;
+        $header['Location'] = $this->build($url, $vars);
         $response = Response::create()->header($header)->code($code);
 
         throw new JumpException($response);
@@ -151,16 +152,16 @@ class Url
     /**
      * 返回封装后的API数据到客户端
      * 
-     * @param integer $code         数据集code值
-     * @param string $msg           数据集提示信息
-     * @param array $data           数据集结果集
-     * @param array $extend         或者数据集数据
-     * @param string $type          返回数据类型，默认Json，支持json、xml类型
-     * @param array $header         响应头
-     * @param integer $http_code    响应状态码
+     * @param integer   $code           数据集code值
+     * @param string    $msg            数据集提示信息
+     * @param array     $data           数据集结果集
+     * @param array     $extend         或者数据集数据
+     * @param string    $type           返回数据类型，默认Json，支持json、xml类型
+     * @param array     $header         响应头
+     * @param integer   $http_code      响应状态码
      * @return void
      */
-    public function result(int $code = 0, string $msg = '', array $data = [], array $extend = [], string $type = 'json', array $header = [], int $http_code = 200)
+    public function result($code = 0, $msg = '', array $data = [], array $extend = [], $type = 'json', array $header = [], $http_code = 200)
     {
         $result = [
             'code' => $code,
@@ -178,12 +179,12 @@ class Url
     /**
      * 程序结束
      *
-     * @param  [type] $code    状态码
-     * @param  [type] $msg     返回内容
-     * @param  array  $header  响应头信息
-     * @return [type]          [description]
+     * @param  integer $code    状态码
+     * @param  string  $msg     返回内容
+     * @param  array   $header  响应头信息
+     * @return [type]           [description]
      */
-    public function abort(int $code, string $msg = null, array $header = [])
+    public function abort($code, $msg = null, array $header = [])
     {
         $response = Response::create($msg, 'html')->header($header)->code($code);
         throw new JumpException($response);

@@ -54,8 +54,10 @@ $app->route->group('', function ($route) {
 
             // 路由跳转
             $r->get('/baidu', function(\FApi\Url $url){
-                $redirect = $url->build('http://www.baidu.com', ['test' => 1]);
-                return $url->redirect($redirect);
+                // $redirect = $url->build('http://www.baidu.com', ['test' => 1]);
+                // return $url->redirect($redirect);
+                return $url->redirect('/home/test', ['test' => 1]);
+                // return $url->redirect('http://www.baidu.com', ['test' => 1]);
             });
 
             // 路由参数, /home/{name}/{age}

@@ -20,6 +20,7 @@ class JumpException extends Exception
 
     /**
      * 构造方法
+     *
      * @param Response $response [description]
      */
     public function __construct(Response $response)

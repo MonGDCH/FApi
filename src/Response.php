@@ -1,7 +1,8 @@
 <?php
+
 namespace FApi;
 
-USE FApi\Hook;
+use FApi\Hook;
 use FApi\exception\ResponseException;
 
 class Response
@@ -82,7 +83,7 @@ class Response
         $this->code = $code;
 
         // 设置头信息
-        $header = $this->headers[$this->type] . ';charset='.$this->charset;
+        $header = $this->headers[$this->type] . ';charset=' . $this->charset;
         $this->header('Content-Type', $header);
     }
 
@@ -95,10 +96,9 @@ class Response
      */
     public function header($name, $val = null)
     {
-        if(is_array($name)){
-            $this->header = array_merge($this->header, (array)$name);
-        }
-        else{
+        if (is_array($name)) {
+            $this->header = array_merge($this->header, (array) $name);
+        } else {
             $this->header[$name] = $val;
         }
 
@@ -158,16 +158,14 @@ class Response
         Hook::listen('send', $data);
 
         // 输出头
-        if(!headers_sent() && !empty($this->header)){
+        if (!headers_sent() && !empty($this->header)) {
             // 发送状态码
             http_response_code($this->code);
             // 发送头部信息
-            foreach($this->header as $name => $val)
-            {
+            foreach ($this->header as $name => $val) {
                 if (is_null($val)) {
                     header($name);
-                }
-                else {
+                } else {
                     header($name . ':' . $val);
                 }
             }
@@ -177,7 +175,7 @@ class Response
         echo $data;
 
         // fastcgi提高页面响应
-        if(function_exists('fastcgi_finish_request')){
+        if (function_exists('fastcgi_finish_request')) {
             fastcgi_finish_request();
         }
 
@@ -191,8 +189,7 @@ class Response
      */
     public function getContent()
     {
-        switch ($this->type)
-        {
+        switch ($this->type) {
             case 'json':
                 $content = $this->toJson();
                 break;
@@ -228,8 +225,8 @@ class Response
         $data = json_encode($this->data, JSON_UNESCAPED_UNICODE);
 
         // 转换失败，抛出错误信息
-        if($data === false){
-            throw new ResponseException('Data conversion to json format failed,'.json_last_error_msg(), 500);
+        if ($data === false) {
+            throw new ResponseException('Data conversion to json format failed,' . json_last_error_msg(), 500);
         }
 
         return $data;
@@ -255,13 +252,13 @@ class Response
     /**
      * 辅助toXML方法转换数据
      *
-     * @param [type] $data [description]
+     * @param array $data
+     * @return void
      */
     protected function XMLFormat($data)
     {
         $xml = '';
-        foreach($data as $key => $val)
-        {
+        foreach ($data as $key => $val) {
             $xml .= "<{$key}>";
             $xml .= (is_array($val) || is_object($val)) ? $this->XMLFormat($val) : $val;
             $xml .= "</{$key}>";
