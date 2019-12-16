@@ -53,14 +53,14 @@ class Route
     protected $prefix = '';
 
     /**
-     * 路由前置回调(中间件)
+     * 路由前置回调(前置中间件)
      *
      * @var string
      */
     protected $befor;
 
     /**
-     * 路由后置回调(后置件)
+     * 路由后置回调(后置中间件)
      *
      * @var [type]
      */

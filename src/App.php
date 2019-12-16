@@ -25,7 +25,7 @@ class App
     /**
      * 版本号
      */
-    const VERSION = '1.3.1';
+    const VERSION = '1.3.2';
 
     /**
      * 启动模式
@@ -207,7 +207,7 @@ class App
                 // 200 匹配请求
             case Dispatcher::FOUND:
                 // 执行路由响应
-                $this->result = $this->runHandler($callback[1], $callback[2]);
+                $this->result = $this->handler($callback[1], $callback[2]);
                 // 返回响应类实例
                 return $this->response($this->result);
 
@@ -222,7 +222,7 @@ class App
                 $default = $this->container->route->dispatch($method, '*');
                 if ($default[0] === Dispatcher::FOUND) {
                     // 存在自定义的默认处理路由
-                    $this->result = $this->runHandler($default[1], $default[2]);
+                    $this->result = $this->handler($default[1], $default[2]);
                     // 返回响应类实例
                     return $this->response($this->result);
                 }
@@ -232,23 +232,6 @@ class App
             default:
                 throw new RouteException("Route is not found", 404);
         }
-    }
-
-    /**
-     * 执行控制器及后置件
-     * 
-     * @return function [description]
-     */
-    public function next()
-    {
-        // 执行控制器
-        $result = $this->container->invoke($this->controller, $this->vars);
-        // 执行后置件
-        if ($this->after) {
-            $result = $this->runKernel($this->after, $result);
-        }
-
-        return $result;
     }
 
     /**
@@ -277,7 +260,7 @@ class App
      * @param  array  $vars     路由参数
      * @return [type]           [description]
      */
-    protected function runHandler($callback, array $vars = [])
+    protected function handler($callback, array $vars = [])
     {
         // 获得处理函数
         $this->callback = $callback;
@@ -292,15 +275,17 @@ class App
 
         // 回调执行前
         Hook::listen('action_befor', $this);
-
         try {
             // 执行中间件
             if ($this->befor) {
                 // 存在中间件，执行中间件，绑定参数：路由请求参数和App实例
-                $result = $this->runKernel($this->befor, $this->vars);
+                $result = $this->kernel($this->befor, $this->vars);
+                if($result === true){
+                    $result = $this->callback();
+                }
             } else {
                 // 不存在中间件，执行控制器及后置件
-                $result = $this->next();
+                $result = $this->callback();
             }
         } catch (JumpException $e) {
             $result =  $e->getResponse();
@@ -313,13 +298,62 @@ class App
     }
 
     /**
-     * 执行请求组件
-     *
-     * @param  [type] $kernel 中间件
-     * @param  array  $vals   参数
-     * @return [type]         [description]
+     * 已移除的方法，这里做兼容处理
+     * 
+     * @return function [description]
      */
-    protected function runKernel($kernel, $vars = [])
+    public function next()
+    {
+        return true;
+    }
+
+    /**
+     * 执行中间件
+     *
+     * @param [type] $kernel
+     * @param array|string $vars
+     * @return void
+     */
+    protected function kernel($kernel, $vars = [])
+    {
+        // 转为数组
+        $kernel = !is_array($kernel) ? [$kernel] : $kernel;
+        foreach ($kernel as $k => $v) {
+            // 执行回调，不返回true，则结束执行，返回中间件的返回结果集
+            $result = $this->exec($v, $vars);
+            if ($result !== true) {
+                return $result;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * 执行业务回调
+     *
+     * @return void
+     */
+    protected function callback()
+    {
+        // 执行控制器
+        $result = $this->container->invoke($this->controller, $this->vars);
+        // 执行后置件
+        if ($this->after) {
+            $result = $this->kernel($this->after, $result);
+        }
+
+        return $result;
+    }
+
+    /**
+     * 执行回调
+     *
+     * @param [type] $kernel        回调对象
+     * @param array|string $vars    参数
+     * @return void
+     */
+    protected function exec($kernel, $vars = [])
     {
         if (is_string($kernel) || (is_object($kernel) && !($kernel instanceof Closure))) {
             $kernel = [$this->container->make($kernel), 'handler'];
