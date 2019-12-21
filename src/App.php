@@ -31,7 +31,7 @@ class App
     /**
      * 版本号
      */
-    const VERSION = '2.0.0';
+    const VERSION = '2.0.1';
 
     /**
      * 启动模式
@@ -240,7 +240,7 @@ class App
     /**
      * 设置路由参数
      *
-     * @param array $callback
+     * @param array $vars
      * @return void
      */
     public function setVars(array $vars)
@@ -262,7 +262,7 @@ class App
     /**
      * 设置前置中间件
      *
-     * @param array $callback
+     * @param array $befor
      * @return void
      */
     public function setBefor(array $befor)
@@ -276,7 +276,7 @@ class App
      *
      * @return void
      */
-    public function getBController()
+    public function getController()
     {
         return $this->controller;
     }
@@ -284,7 +284,7 @@ class App
     /**
      * 设置回调控制器
      *
-     * @param array $callback
+     * @param array $controller
      * @return void
      */
     public function setController($controller)
@@ -306,7 +306,7 @@ class App
     /**
      * 设置后置中间件
      *
-     * @param array $callback
+     * @param array $after
      * @return void
      */
     public function setAfter(array $after)
