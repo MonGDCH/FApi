@@ -8,11 +8,17 @@ use FApi\Error;
 use FApi\Route;
 use FApi\Request;
 use FApi\Response;
-use FApi\exception\RouteException;
-use FApi\exception\JumpException;
 use FastRoute\Dispatcher;
 use mon\factory\Container;
+use FApi\exception\RouteException;
+use FApi\exception\JumpException;
 
+/**
+ * Fapi核心驱动类
+ * 
+ * @author Mon <985558837@qq.com>
+ * @version 2.0.0 2019-12-21
+ */
 class App
 {
     /**
@@ -25,7 +31,7 @@ class App
     /**
      * 版本号
      */
-    const VERSION = '1.3.2';
+    const VERSION = '2.0.0';
 
     /**
      * 启动模式
@@ -51,37 +57,37 @@ class App
     /**
      * 路由回调
      *
-     * @var [type]
+     * @var array
      */
-    public $callback;
+    protected $callback;
 
     /**
      * 路由请求参数
      *
      * @var array
      */
-    public $vals = [];
+    protected $vars = [];
 
     /**
      * 路由回调中间件
      *
-     * @var [type]
+     * @var array
      */
-    public $befor;
+    protected $befor;
 
     /**
      * 路由回调控制器
      *
      * @var [type]
      */
-    public $controller;
+    protected $controller;
 
     /**
      * 路由回调后置件
      *
      * @var [type]
      */
-    public $after;
+    protected $after;
 
     /**
      * 构造方法
@@ -188,6 +194,128 @@ class App
     }
 
     /**
+     * 设置响应结果集
+     *
+     * @param [type] $result
+     * @return void
+     */
+    public function setResult($result)
+    {
+        $this->result = $result;
+        return $this;
+    }
+
+    /**
+     * 获取路由回调
+     *
+     * @return void
+     */
+    public function getCallback()
+    {
+        return $this->callback;
+    }
+
+    /**
+     * 设置路由回调
+     *
+     * @param array $callback
+     * @return void
+     */
+    public function setCallback(array $callback)
+    {
+        $this->callback = $callback;
+        return $this;
+    }
+
+    /**
+     * 获取路由参数
+     *
+     * @return void
+     */
+    public function getVars()
+    {
+        return $this->vars;
+    }
+
+    /**
+     * 设置路由参数
+     *
+     * @param array $callback
+     * @return void
+     */
+    public function setVars(array $vars)
+    {
+        $this->vars = $vars;;
+        return $this;
+    }
+
+    /**
+     * 获取前置中间件
+     *
+     * @return void
+     */
+    public function getBefor()
+    {
+        return $this->befor;
+    }
+
+    /**
+     * 设置前置中间件
+     *
+     * @param array $callback
+     * @return void
+     */
+    public function setBefor(array $befor)
+    {
+        $this->befor = $befor;
+        return $this;
+    }
+
+    /**
+     * 获取回调控制器
+     *
+     * @return void
+     */
+    public function getBController()
+    {
+        return $this->controller;
+    }
+
+    /**
+     * 设置回调控制器
+     *
+     * @param array $callback
+     * @return void
+     */
+    public function setController($controller)
+    {
+        $this->controller = $controller;
+        return $this;
+    }
+
+    /**
+     * 获取后置中间件
+     *
+     * @return void
+     */
+    public function getAfter()
+    {
+        return $this->after;
+    }
+
+    /**
+     * 设置后置中间件
+     *
+     * @param array $callback
+     * @return void
+     */
+    public function setAfter(array $after)
+    {
+        $this->after = $after;
+        return $this;
+    }
+
+    /**
      * 执行应用
      *
      * @return [type] [description]
@@ -207,9 +335,9 @@ class App
                 // 200 匹配请求
             case Dispatcher::FOUND:
                 // 执行路由响应
-                $this->result = $this->handler($callback[1], $callback[2]);
+                $result = $this->handler($callback[1], $callback[2]);
                 // 返回响应类实例
-                return $this->response($this->result);
+                return $this->response($result);
 
                 // 405 Method Not Allowed  方法不允许
             case Dispatcher::METHOD_NOT_ALLOWED:
@@ -222,9 +350,9 @@ class App
                 $default = $this->container->route->dispatch($method, '*');
                 if ($default[0] === Dispatcher::FOUND) {
                     // 存在自定义的默认处理路由
-                    $this->result = $this->handler($default[1], $default[2]);
+                    $result = $this->handler($default[1], $default[2]);
                     // 返回响应类实例
-                    return $this->response($this->result);
+                    return $this->response($result);
                 }
                 throw new RouteException("Route is not found", 404);
 
@@ -280,7 +408,7 @@ class App
             if ($this->befor) {
                 // 存在中间件，执行中间件，绑定参数：路由请求参数和App实例
                 $result = $this->kernel($this->befor, $this->vars);
-                if($result === true){
+                if ($result === true) {
                     $result = $this->callback();
                 }
             } else {
@@ -295,16 +423,6 @@ class App
         Hook::listen('action_after', $result);
 
         return $result;
-    }
-
-    /**
-     * 已移除的方法，这里做兼容处理
-     * 
-     * @return function [description]
-     */
-    public function next()
-    {
-        return true;
     }
 
     /**
@@ -337,13 +455,13 @@ class App
     protected function callback()
     {
         // 执行控制器
-        $result = $this->container->invoke($this->controller, $this->vars);
+        $this->result = $this->container->invoke($this->controller, $this->vars);
         // 执行后置件
         if ($this->after) {
-            $result = $this->kernel($this->after, $result);
+            $this->result = $this->kernel($this->after, $this->result);
         }
 
-        return $result;
+        return $this->result;
     }
 
     /**

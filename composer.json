@@ -1,11 +1,12 @@
 {
     "name": "mongdch/fapi",
     "description": "the fast php api routing framework",
-    "version" : "1.3.2",
+    "version" : "2.0.0",
     "keywords": [
     	"api",
     	"route",
-        "fapi"
+        "fast-route",
+        "mon"
     ],
     "homepage": "http://blog.gdmon.com/",
     "license": "Apache-2.0",

@@ -4,16 +4,16 @@ namespace FApi;
 
 use Closure;
 use ReflectionFunction;
+use FastRoute\RouteCollector;
 use FastRoute\RouteParser\Std;
 use FastRoute\DataGenerator\GroupCountBased;
 use FastRoute\Dispatcher\GroupCountBased as Dispatcher;
-use FastRoute\RouteCollector;
 
 /**
  * 路由封装
  *
  * @author Mon <985558837@qq.com>
- * @version v2.0
+ * @version v3.0 2019-12-21 支持数组定义多个中间件定义
  */
 class Route
 {
@@ -55,22 +55,23 @@ class Route
     /**
      * 路由前置回调(前置中间件)
      *
-     * @var string
+     * @var array
      */
-    protected $befor;
+    protected $befor = [];
 
     /**
      * 路由后置回调(后置中间件)
      *
-     * @var [type]
+     * @var array
      */
-    protected $after;
+    protected $after = [];
 
     /**
      * 私有化构造方法
      */
     private function __construct()
-    { }
+    {
+    }
 
     /**
      * 获取实例
@@ -242,6 +243,8 @@ class Route
         if (is_string($callback)) {
             $callback = (!empty($parse['namespace']) ? $parse['namespace'] : $this->prefix) . $callback;
         }
+        // 所有值转大写
+        $method = array_map('strtoupper', $method);
 
         $result = [
             'befor'    => $parse['befor'],
@@ -277,17 +280,17 @@ class Route
             $res['path'] = $pattern;
         } elseif (is_array($pattern)) {
             // 数组，解析配置
-            if (isset($pattern['path'])) {
+            if (isset($pattern['path']) && !empty($pattern['path'])) {
                 $res['path'] = $pattern['path'];
             }
-            if (isset($pattern['namespace'])) {
+            if (isset($pattern['namespace']) && !empty($pattern['namespace'])) {
                 $res['namespace'] = $pattern['namespace'];
             }
-            if (isset($pattern['befor'])) {
-                $res['befor'] = $pattern['befor'];
+            if (isset($pattern['befor']) && !empty($pattern['befor'])) {
+                $res['befor'] = array_merge((array) $this->befor, (array) $pattern['befor']);
             }
-            if (isset($pattern['after'])) {
-                $res['after'] = $pattern['after'];
+            if (isset($pattern['after']) && !empty($pattern['after'])) {
+                $res['after'] = array_merge((array) $this->after, (array) $pattern['after']);
             }
         }
 
