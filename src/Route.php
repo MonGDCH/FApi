@@ -20,14 +20,14 @@ class Route
     /**
      * 对象单例
      *
-     * @var [type]
+     * @var Route
      */
     protected static $instance;
 
     /**
      * fast-route路由容器
      *
-     * @var [type]
+     * @var RouteCollector
      */
     protected $collector;
 
@@ -76,7 +76,7 @@ class Route
     /**
      * 获取实例
      *
-     * @return [type]         [description]
+     * @return Route
      */
     public static function instance()
     {
@@ -91,6 +91,7 @@ class Route
      * 设置路由数据
      *
      * @param array $data 路由数据
+     * @return void
      */
     public function setData(array $data)
     {
@@ -100,7 +101,7 @@ class Route
     /**
      * 获取路由数据
      *
-     * @return [type] [description]
+     * @return array
      */
     public function getData()
     {
@@ -110,7 +111,7 @@ class Route
     /**
      * 获取fast-route路由容器
      *
-     * @return [type] [description]
+     * @return RouteCollector
      */
     public function collector()
     {
@@ -125,7 +126,8 @@ class Route
      * 注册GET路由
      *
      * @param  string $pattern  请求模式
-     * @param  [type] $callback 路由回调
+     * @param  mixed  $callback 路由回调
+     * @return Route
      */
     public function get($pattern, $callback)
     {
@@ -136,7 +138,8 @@ class Route
      * 注册POST路由
      *
      * @param  string $pattern  请求模式
-     * @param  [type] $callback 路由回调
+     * @param  mixed  $callback 路由回调
+     * @return Route
      */
     public function post($pattern, $callback)
     {
@@ -147,7 +150,8 @@ class Route
      * 注册PUT路由
      *
      * @param  string $pattern  请求模式
-     * @param  [type] $callback 路由回调
+     * @param  mixed  $callback 路由回调
+     * @return Route
      */
     public function put($pattern, $callback)
     {
@@ -158,7 +162,8 @@ class Route
      * 注册PATCH路由
      *
      * @param  string $pattern  请求模式
-     * @param  [type] $callback 路由回调
+     * @param  mixed  $callback 路由回调
+     * @return Route
      */
     public function patch($pattern, $callback)
     {
@@ -169,7 +174,8 @@ class Route
      * 注册DELETE路由
      *
      * @param  string $pattern  请求模式
-     * @param  [type] $callback 路由回调
+     * @param  mixed  $callback 路由回调
+     * @return Route
      */
     public function delete($pattern, $callback)
     {
@@ -180,7 +186,8 @@ class Route
      * 注册OPTIONS路由
      *
      * @param  string $pattern  请求模式
-     * @param  [type] $callback 路由回调
+     * @param  mixed  $callback 路由回调
+     * @return Route
      */
     public function options($pattern, $callback)
     {
@@ -191,7 +198,8 @@ class Route
      * 注册任意请求方式的路由
      *
      * @param  string $pattern  请求模式
-     * @param  [type] $callback 路由回调
+     * @param  mixed  $callback 路由回调
+     * @return Route
      */
     public function any($pattern, $callback)
     {
@@ -203,36 +211,36 @@ class Route
      *
      * @param  string  $pattern  路由前缀
      * @param  Closure $callback 路由回调
-     * @return [type]            [description]
+     * @return void
      */
     public function group($pattern, Closure $callback)
     {
         $groupPrefix = $this->groupPrefix;
         $prefix = $this->prefix;
-        $befor  =  $this->befor;
+        $befor  = $this->befor;
         $after  = $this->after;
 
         $parse = $this->parsePattern($pattern);
-        $this->groupPrefix .=  $parse['path'];
+        $this->groupPrefix .= $parse['path'];
         $this->prefix = $parse['namespace'];
-        $this->befor  =  $parse['befor'];
-        $this->after  =  $parse['after'];
+        $this->befor  = $parse['befor'];
+        $this->after  = $parse['after'];
 
         call_user_func($callback, $this);
 
         $this->groupPrefix = $groupPrefix;
         $this->prefix = $prefix;
-        $this->befor  =  $befor;
+        $this->befor  = $befor;
         $this->after  = $after;
     }
 
     /**
      * 注册路由方法
      *
-     * @param  array  $method   请求方式
-     * @param  string $pattern  请求模式
-     * @param  [type] $callback 路由回调
-     * @return [type]           [description]
+     * @param  array $method   请求方式
+     * @param  mixed $pattern  请求模式
+     * @param  mixed $callback 路由回调
+     * @return Route
      */
     public function map(array $method, $pattern, $callback)
     {
@@ -260,8 +268,8 @@ class Route
     /**
      * 解析请求模式
      *
-     * @param  [type] $pattern 路由参数
-     * @return [type]          [description]
+     * @param  mixed $pattern 路由参数
+     * @return array
      */
     protected function parsePattern($pattern)
     {
@@ -302,7 +310,7 @@ class Route
      *
      * @param  string $method 请求类型
      * @param  string $path   请求路径
-     * @return [type]         [description]
+     * @return array
      */
     public function dispatch($method, $path)
     {
@@ -317,8 +325,8 @@ class Route
     /**
      * 获取路由缓存结果集,或者缓存路由
      *
-     * @param  [type] $path 缓存文件路径，存在缓存路径则输出缓存文件
-     * @return [type]       [description]
+     * @param  string $path 缓存文件路径，存在缓存路径则输出缓存文件
+     * @return mixed
      */
     public function cache($path = '')
     {
@@ -338,8 +346,8 @@ class Route
     /**
      * 生成路由内容
      *
-     * @param  [type] &$value 路由内容
-     * @return [type]         [description]
+     * @param  mixed  &$value 路由内容
+     * @return void
      */
     protected function buildClosure(&$value)
     {

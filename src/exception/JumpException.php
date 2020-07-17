@@ -1,27 +1,28 @@
 <?php
+
 namespace FApi\exception;
 
 use Exception;
 use FApi\Response;
 
 /**
-* 路由异常
-*
-* @author Mon 985558837@qq.com
-*/
+ * 路由异常
+ *
+ * @author Mon 985558837@qq.com
+ */
 class JumpException extends Exception
 {
     /**
      * 响应类实例
      *
-     * @var [type]
+     * @var Response
      */
     protected $response;
 
     /**
      * 构造方法
      *
-     * @param Response $response [description]
+     * @param Response $response 响应类
      */
     public function __construct(Response $response)
     {
@@ -31,7 +32,7 @@ class JumpException extends Exception
     /**
      * 获取响应实例
      *
-     * @return [type] [description]
+     * @return Response
      */
     public function getResponse()
     {

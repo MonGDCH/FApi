@@ -17,7 +17,7 @@ class Error
     /**
      * 应用执行模式
      *
-     * @var [type]
+     * @var boolean
      */
     protected static $debug;
 
@@ -43,7 +43,7 @@ class Error
     /**
      * PHP结束运行
      *
-     * @return [type] [description]
+     * @return void
      */
     public static function fatalError()
     {
@@ -86,7 +86,7 @@ class Error
     /**
      * 应用异常
      *
-     * @param [type] $e 异常实例
+     * @param mixed $e 异常实例
      * @return void
      */
     public static function appException($e)
@@ -112,7 +112,7 @@ class Error
     /**
      * 异常输出
      *
-     * @param [type] $error 错误信息
+     * @param mixed  $error 错误信息
      * @param integer $code 错误码
      * @return void
      */

@@ -45,7 +45,7 @@ class Response
     /**
      * 响应头
      *
-     * @var [type]
+     * @var array
      */
     protected $headers = [
         'json'   => 'application/json',
@@ -55,19 +55,6 @@ class Response
         'script' => 'application/javascript',
         'text'   => 'text/plain',
     ];
-
-    /**
-     * 创建一个响应结果集
-     *
-     * @param  string  $data 发送的数据
-     * @param  string  $type 数据类型
-     * @param  integer $code 状态码
-     * @return Response
-     */
-    public static function create($data = '', $type = 'html', $code = 200)
-    {
-        return new self($data, $type, $code);
-    }
 
     /**
      * 构造方法
@@ -88,11 +75,24 @@ class Response
     }
 
     /**
+     * 创建一个响应结果集
+     *
+     * @param  string  $data 发送的数据
+     * @param  string  $type 数据类型
+     * @param  integer $code 状态码
+     * @return Response
+     */
+    public static function create($data = '', $type = 'html', $code = 200)
+    {
+        return new self($data, $type, $code);
+    }
+
+    /**
      * 设置响应头
      *
-     * @param  [type] $name 响应类型
-     * @param  [type] $val  值
-     * @return [type]       [description]
+     * @param  mixed  $name 响应类型
+     * @param  mixed  $val  值
+     * @return Response
      */
     public function header($name, $val = null)
     {
@@ -108,8 +108,8 @@ class Response
     /**
      * 设置输出的数据
      *
-     * @param  [type] $data [description]
-     * @return [type]       [description]
+     * @param  mixed $data 输出结果集
+     * @return Response
      */
     public function data($data)
     {
@@ -121,8 +121,8 @@ class Response
     /**
      * 设置状态码
      *
-     * @param  [type] $code [description]
-     * @return [type]       [description]
+     * @param  integer $code 状态码
+     * @return Response
      */
     public function code($code)
     {
@@ -134,8 +134,8 @@ class Response
     /**
      * 设置响应数据类型
      *
-     * @param  [type] $type [description]
-     * @return [type]       [description]
+     * @param  string $type 结果集数据格式类型
+     * @return Response
      */
     public function type($type)
     {
@@ -147,7 +147,7 @@ class Response
     /**
      * 发送数据
      *
-     * @return [type] [description]
+     * @return void
      */
     public function send()
     {
@@ -185,7 +185,7 @@ class Response
     /**
      * 格式化获取输出数据
      *
-     * @return [type] [description]
+     * @return string
      */
     public function getContent()
     {
@@ -208,7 +208,7 @@ class Response
     /**
      * 数据转换为HTML数据
      *
-     * @return [type] [description]
+     * @return string
      */
     protected function toHTML()
     {
@@ -218,7 +218,7 @@ class Response
     /**
      * 数据转换为json
      *
-     * @return [type] [description]
+     * @return string
      */
     protected function toJson()
     {
@@ -235,7 +235,7 @@ class Response
     /**
      * 数据转换为XML
      *
-     * @return [type] [description]
+     * @return string
      */
     protected function toXML()
     {
@@ -253,7 +253,7 @@ class Response
      * 辅助toXML方法转换数据
      *
      * @param array $data
-     * @return void
+     * @return string
      */
     protected function XMLFormat($data)
     {

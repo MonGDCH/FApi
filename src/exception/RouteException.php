@@ -1,11 +1,12 @@
 <?php
+
 namespace FApi\exception;
 
 use Exception;
 
 /**
-* 路由异常
-*/
+ * 路由异常
+ */
 class RouteException extends Exception
 {
     /**
@@ -18,7 +19,7 @@ class RouteException extends Exception
     /**
      * 设置异常相关
      *
-     * @param [type] $data [description]
+     * @param mixed $data 移除信息
      */
     public function set($data)
     {
@@ -30,7 +31,7 @@ class RouteException extends Exception
     /**
      * 获取相关数据
      *
-     * @return [type] [description]
+     * @return mixed
      */
     public function get()
     {

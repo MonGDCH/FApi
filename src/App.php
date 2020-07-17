@@ -3,6 +3,7 @@
 namespace FApi;
 
 use Closure;
+use FApi\Url;
 use FApi\Hook;
 use FApi\Error;
 use FApi\Route;
@@ -16,41 +17,48 @@ use FApi\exception\JumpException;
 /**
  * Fapi核心驱动类
  * 
+ * @property Route $route   路由类实例
+ * @property Request $request   请求类实例
+ * @property Url $url   URL类实例
+ * 
  * @author Mon <985558837@qq.com>
  * @version 2.0.0 2019-12-21
+ * @version 2.0.2 2020-07-17    增强注解
  */
 class App
 {
     /**
      * 对象单例
      *
-     * @var [type]
+     * @var App
      */
     protected static $instance;
 
     /**
      * 版本号
+     * 
+     * @var string
      */
-    const VERSION = '2.0.1';
+    const VERSION = '2.0.2';
 
     /**
      * 启动模式
      *
-     * @var [type]
+     * @var boolean
      */
     protected $debug = true;
 
     /**
      * 服务容器实例
      *
-     * @var [type]
+     * @var Container
      */
     protected $container;
 
     /**
      * 路由返回结果集
      *
-     * @var [type]
+     * @var mixed
      */
     protected $result;
 
@@ -78,21 +86,19 @@ class App
     /**
      * 路由回调控制器
      *
-     * @var [type]
+     * @var mixed
      */
     protected $controller;
 
     /**
      * 路由回调后置件
      *
-     * @var [type]
+     * @var mixed
      */
     protected $after;
 
     /**
      * 构造方法
-     *
-     * @param array $config [description]
      */
     protected function __construct()
     {
@@ -103,13 +109,15 @@ class App
             'request'   => Request::instance(),
             // 注册路由类实例
             'route'     => Route::instance(),
+            // 注册URL类实例
+            'url'       => Url::instance()
         ]);
     }
 
     /**
      * 获取实例
      *
-     * @return [type]         [description]
+     * @return App
      */
     public static function instance()
     {
@@ -123,7 +131,7 @@ class App
     /**
      * 魔术属性支持
      *
-     * @return [type] [description]
+     * @return mixed 服务容器获取的实例
      */
     public function __get($abstract)
     {
@@ -133,8 +141,8 @@ class App
     /**
      * 初始化应用
      *
-     * @param boolean $debug    是否为调试模式
-     * @return void
+     * @param boolean $debug 是否为调试模式
+     * @return App
      */
     public function init($debug = true)
     {
@@ -151,7 +159,7 @@ class App
     /**
      * 判断当前是否为调试模式
      *
-     * @return [type]         [description]
+     * @return boolean
      */
     public function debug()
     {
@@ -161,9 +169,9 @@ class App
     /**
      * 注册服务
      *
-     * @param  [type] $abstract 服务标识
-     * @param  [type] $server   服务实例
-     * @return [type]           [description]
+     * @param  mixed $abstract 服务标识
+     * @param  mixed $server   服务实例
+     * @return App
      */
     public function singleton($abstract, $server = null)
     {
@@ -175,7 +183,7 @@ class App
      * 定义应用钩子
      *
      * @param array $tags   钩子标识
-     * @return void
+     * @return App
      */
     public function definition($tags = [])
     {
@@ -186,7 +194,7 @@ class App
     /**
      * 获取响应结果集
      *
-     * @return [type] [description]
+     * @return mixed
      */
     public function getResult()
     {
@@ -196,8 +204,8 @@ class App
     /**
      * 设置响应结果集
      *
-     * @param [type] $result
-     * @return void
+     * @param mixed $result 结果集
+     * @return App
      */
     public function setResult($result)
     {
@@ -208,7 +216,7 @@ class App
     /**
      * 获取路由回调
      *
-     * @return void
+     * @return mixed
      */
     public function getCallback()
     {
@@ -218,8 +226,8 @@ class App
     /**
      * 设置路由回调
      *
-     * @param array $callback
-     * @return void
+     * @param array $callback   回调信息
+     * @return App
      */
     public function setCallback(array $callback)
     {
@@ -230,7 +238,7 @@ class App
     /**
      * 获取路由参数
      *
-     * @return void
+     * @return mixed
      */
     public function getVars()
     {
@@ -240,8 +248,8 @@ class App
     /**
      * 设置路由参数
      *
-     * @param array $vars
-     * @return void
+     * @param array $vars   路由参数
+     * @return App
      */
     public function setVars(array $vars)
     {
@@ -252,7 +260,7 @@ class App
     /**
      * 获取前置中间件
      *
-     * @return void
+     * @return mixed
      */
     public function getBefor()
     {
@@ -262,8 +270,8 @@ class App
     /**
      * 设置前置中间件
      *
-     * @param array $befor
-     * @return void
+     * @param array $befor  中间件
+     * @return App
      */
     public function setBefor(array $befor)
     {
@@ -274,7 +282,7 @@ class App
     /**
      * 获取回调控制器
      *
-     * @return void
+     * @return mixed
      */
     public function getController()
     {
@@ -284,8 +292,8 @@ class App
     /**
      * 设置回调控制器
      *
-     * @param array $controller
-     * @return void
+     * @param array $controller 控制器
+     * @return App
      */
     public function setController($controller)
     {
@@ -296,7 +304,7 @@ class App
     /**
      * 获取后置中间件
      *
-     * @return void
+     * @return mixed
      */
     public function getAfter()
     {
@@ -306,8 +314,8 @@ class App
     /**
      * 设置后置中间件
      *
-     * @param array $after
-     * @return void
+     * @param array $after  中间件
+     * @return App
      */
     public function setAfter(array $after)
     {
@@ -318,7 +326,7 @@ class App
     /**
      * 执行应用
      *
-     * @return [type] [description]
+     * @return mixed
      */
     public function run()
     {
@@ -366,7 +374,7 @@ class App
      * 获取响应结果集
      * 
      * @param  string $result 结果集
-     * @return [type]         [description]
+     * @return Response
      */
     public function response($result = '')
     {
@@ -384,9 +392,9 @@ class App
     /**
      * 执行路由
      *
-     * @param  [type] $callback 路由回调标志
+     * @param  mixed  $callback 路由回调标志
      * @param  array  $vars     路由参数
-     * @return [type]           [description]
+     * @return mixed
      */
     protected function handler($callback, array $vars = [])
     {
@@ -428,9 +436,9 @@ class App
     /**
      * 执行中间件
      *
-     * @param [type] $kernel
-     * @param array|string $vars
-     * @return void
+     * @param mixed $kernel         中间件
+     * @param array|string $vars    参数
+     * @return mixed
      */
     protected function kernel($kernel, $vars = [])
     {
@@ -450,7 +458,7 @@ class App
     /**
      * 执行业务回调
      *
-     * @return void
+     * @return mixed
      */
     protected function callback()
     {
@@ -467,9 +475,9 @@ class App
     /**
      * 执行回调
      *
-     * @param [type] $kernel        回调对象
+     * @param mixed  $kernel        回调对象
      * @param array|string $vars    参数
-     * @return void
+     * @return mixed
      */
     protected function exec($kernel, $vars = [])
     {

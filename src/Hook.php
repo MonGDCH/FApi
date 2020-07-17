@@ -33,7 +33,7 @@ class Hook
      * 批量注册钩子
      *
      * @param  array  $tags 钩子标识
-     * @return [type]       [description]
+     * @return void
      */
     public static function register(array $tags)
     {
@@ -43,8 +43,9 @@ class Hook
     /**
      * 添加一个钩子
      *
-     * @param [type] $tag     钩子名称
-     * @param [type] $callbak 钩子回调
+     * @param mixed $tag     钩子名称
+     * @param mixed $callbak 钩子回调
+     * @return void
      */
     public static function add($tag, $callbak)
     {
@@ -56,7 +57,7 @@ class Hook
      * 获取钩子信息
      *
      * @param  string $tag 钩子名称
-     * @return [type]      [description]
+     * @return mixed
      */
     public static function get($tag = '')
     {
@@ -71,9 +72,9 @@ class Hook
     /**
      * 监听&执行行为
      *
-     * @param  [type] $tag     钩子名称
-     * @param  [type] &$params 参数
-     * @return [type]          [description]
+     * @param  mixed $tag     钩子名称
+     * @param  mixed &$params 参数
+     * @return mixed
      */
     public static function listen($tag, &$params = null)
     {
@@ -94,10 +95,10 @@ class Hook
     /**
      * 执行一个行为
      *
-     * @param  [type] $class   行为回调
+     * @param  mixed  $class   行为回调
      * @param  string $tag     钩子名称
-     * @param  [type] &$params 参数
-     * @return [type]          [description]
+     * @param  mixed  &$params 参数
+     * @return mixed
      */
     public static function exec($class, $tag = '', &$params = null)
     {

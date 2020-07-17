@@ -18,14 +18,14 @@ class Url
     /**
      * 静态单例
      *
-     * @var [type]
+     * @var Url
      */
     protected static $instance;
 
     /**
      * 服务容器
      *
-     * @var [type]
+     * @var Request
      */
     protected $request;
 
@@ -40,7 +40,7 @@ class Url
     /**
      * 获取实例
      *
-     * @return [type]         [description]
+     * @return Url
      */
     public static function instance()
     {
@@ -139,7 +139,8 @@ class Url
      * @param  string  $url    跳转URL
      * @param  integer $code   跳转状态码，默认302
      * @param  array   $header 响应头
-     * @return [type]          [description]
+     * @throws JumpException
+     * @return void
      */
     public function redirect($url = '', array $vars = [], $code = 302, array $header = [])
     {
@@ -159,6 +160,7 @@ class Url
      * @param string    $type           返回数据类型，默认Json，支持json、xml类型
      * @param array     $header         响应头
      * @param integer   $http_code      响应状态码
+     * @throws JumpException
      * @return void
      */
     public function result($code = 0, $msg = '', array $data = [], array $extend = [], $type = 'json', array $header = [], $http_code = 200)
@@ -182,7 +184,8 @@ class Url
      * @param  integer $code    状态码
      * @param  string  $msg     返回内容
      * @param  array   $header  响应头信息
-     * @return [type]           [description]
+     * @throws JumpException
+     * @return void
      */
     public function abort($code, $msg = null, array $header = [])
     {

@@ -13,7 +13,7 @@ class Request
     /**
      * 对象单例
      *
-     * @var [type]
+     * @var Request
      */
     protected static $instance;
 
@@ -70,12 +70,13 @@ class Request
      * 私有化构造方法
      */
     private function __construct()
-    { }
+    {
+    }
 
     /**
      * 获取实例
      *
-     * @return [type]         [description]
+     * @return Request
      */
     public static function instance()
     {
@@ -89,7 +90,10 @@ class Request
     /**
      * 获取传参
      *
-     * @return [type] [description]
+     * @param string $key       参数键名
+     * @param string $default   默认值
+     * @param boolean $filter   是否过滤参数
+     * @return mixed
      */
     public function params($key = '', $default = '', $filter = true)
     {
@@ -110,9 +114,10 @@ class Request
     /**
      * 获取GET数据
      *
-     * @param  [type] $key     [description]
-     * @param  string $default [description]
-     * @return [type]          [description]
+     * @param string $key       参数键名
+     * @param string $default   默认值
+     * @param boolean $filter   是否过滤参数
+     * @return mixed
      */
     public function get($key = '', $default = '', $filter = true)
     {
@@ -133,9 +138,10 @@ class Request
     /**
      * 获取POST数据
      *
-     * @param  string $key     [description]
-     * @param  string $default [description]
-     * @return [type]          [description]
+     * @param string $key       参数键名
+     * @param string $default   默认值
+     * @param boolean $filter   是否过滤参数
+     * @return mixed
      */
     public function post($key = '', $default = '', $filter = true)
     {
@@ -154,27 +160,26 @@ class Request
     }
 
     /**
-     * 数据安全过滤，采用strip_tags函数
+     * 数据安全过滤，采用filter_var函数
      * 
-     * @param  [type] $input 过滤的数据
-     * @param  [type] $tags  不被去除的字符
-     * @return [type]        [description]
+     * @param  mixed $input 过滤的数据
+     * @return mixed
      */
     public function filter($input)
     {
         if (is_array($input)) {
             return filter_var_array((array)$input, FILTER_SANITIZE_STRING);
-        } else {
-            return filter_var($input, FILTER_SANITIZE_STRING);
         }
+
+        return filter_var($input, FILTER_SANITIZE_STRING);
     }
 
     /**
      * 获取$_SERVER数据
      *
-     * @param  string $key     [description]
-     * @param  string $default [description]
-     * @return [type]          [description]
+     * @param  string $key     参数键名
+     * @param  string $default 默认值
+     * @return mixed
      */
     public function server($key = '', $default = '')
     {
@@ -191,7 +196,6 @@ class Request
     /**
      * 当前URL地址中的scheme参数
      *
-     * @access public
      * @return string
      */
     public function scheme()
@@ -202,7 +206,6 @@ class Request
     /**
      * 当前请求的host
      *
-     * @access public
      * @return string
      */
     public function host()
@@ -241,7 +244,7 @@ class Request
     /**
      * 获取请求类型
      *
-     * @return [type] [description]
+     * @return string
      */
     public function method()
     {
@@ -354,10 +357,7 @@ class Request
             return true;
         } elseif (isset($_SERVER['HTTP_X_WAP_PROFILE']) || isset($_SERVER['HTTP_PROFILE'])) {
             return true;
-        } elseif (
-            isset($_SERVER['HTTP_USER_AGENT'])
-            && preg_match('/(blackberry|configuration\/cldc|hp |hp-|htc |htc_|htc-|iemobile|kindle|midp|mmp|motorola|mobile|nokia|opera mini|opera |Googlebot-Mobile|YahooSeeker\/M1A1-R2D2|android|iphone|ipod|mobi|palm|palmos|pocket|portalmmm|ppc;|smartphone|sonyericsson|sqh|spv|symbian|treo|up.browser|up.link|vodafone|windows ce|xda |xda_)/i', $_SERVER['HTTP_USER_AGENT'])
-        ) {
+        } elseif (isset($_SERVER['HTTP_USER_AGENT']) && preg_match('/(blackberry|configuration\/cldc|hp |hp-|htc |htc_|htc-|iemobile|kindle|midp|mmp|motorola|mobile|nokia|opera mini|opera |Googlebot-Mobile|YahooSeeker\/M1A1-R2D2|android|iphone|ipod|mobi|palm|palmos|pocket|portalmmm|ppc;|smartphone|sonyericsson|sqh|spv|symbian|treo|up.browser|up.link|vodafone|windows ce|xda |xda_)/i', $_SERVER['HTTP_USER_AGENT'])) {
             return true;
         }
 
@@ -386,7 +386,8 @@ class Request
 
     /**
      * 获取当前请求的域名
-     * @return [type] [description]
+     *
+     * @return string
      */
     public function domain()
     {
@@ -470,10 +471,7 @@ class Request
      *
      * 自动检测从请求环境的基本URL
      * 采用了多种标准, 以检测请求的基本URL
-     *
-     * <code>
-     * /site/demo/index.php
-     * </code>
+     * 例子：/site/demo/index.php
      *
      * @param boolean $raw 是否编码
      * @return string
