@@ -67,6 +67,7 @@ class Error
      * @param  string  $errfile 出错的文件
      * @param  integer $errline 出错行号
      * @throws ErrorException
+     * @return void
      */
     public static function appError($errno, $errstr, $errfile = '', $errline = 0)
     {

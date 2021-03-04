@@ -4,23 +4,18 @@ namespace FApi;
 
 use FApi\Request;
 use FApi\Response;
+use mon\util\Instance;
 use FApi\exception\JumpException;
 
 /**
  * URL构建类
  *
  * @author Mon 985558837@qq.com
- * @version 2.0
- * @see 重写URL构造类，重新定义构造方法
+ * @version 2.0 重写URL构造类，重新定义构造方法
  */
 class Url
 {
-    /**
-     * 静态单例
-     *
-     * @var Url
-     */
-    protected static $instance;
+    use Instance;
 
     /**
      * 服务容器
@@ -35,20 +30,6 @@ class Url
     public function __construct()
     {
         $this->request = Request::instance();
-    }
-
-    /**
-     * 获取实例
-     *
-     * @return Url
-     */
-    public static function instance()
-    {
-        if (is_null(self::$instance)) {
-            self::$instance = new self();
-        }
-
-        return self::$instance;
     }
 
     /**

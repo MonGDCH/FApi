@@ -9,8 +9,9 @@ use FApi\Error;
 use FApi\Route;
 use FApi\Request;
 use FApi\Response;
+use mon\util\Instance;
+use mon\util\Container;
 use FastRoute\Dispatcher;
-use mon\factory\Container;
 use FApi\exception\RouteException;
 use FApi\exception\JumpException;
 
@@ -27,19 +28,14 @@ use FApi\exception\JumpException;
  */
 class App
 {
-    /**
-     * 对象单例
-     *
-     * @var App
-     */
-    protected static $instance;
+    use Instance;
 
     /**
      * 版本号
      * 
      * @var string
      */
-    const VERSION = '2.0.2';
+    const VERSION = '2.0.3';
 
     /**
      * 启动模式
@@ -112,20 +108,6 @@ class App
             // 注册URL类实例
             'url'       => Url::instance()
         ]);
-    }
-
-    /**
-     * 获取实例
-     *
-     * @return App
-     */
-    public static function instance()
-    {
-        if (is_null(self::$instance)) {
-            self::$instance = new self();
-        }
-
-        return self::$instance;
     }
 
     /**

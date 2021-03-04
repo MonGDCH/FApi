@@ -3,6 +3,7 @@
 namespace FApi;
 
 use Closure;
+use mon\util\Instance;
 use ReflectionFunction;
 use FastRoute\RouteCollector;
 use FastRoute\RouteParser\Std;
@@ -17,12 +18,7 @@ use FastRoute\Dispatcher\GroupCountBased as Dispatcher;
  */
 class Route
 {
-    /**
-     * 对象单例
-     *
-     * @var Route
-     */
-    protected static $instance;
+    use Instance;
 
     /**
      * fast-route路由容器
@@ -71,20 +67,6 @@ class Route
      */
     private function __construct()
     {
-    }
-
-    /**
-     * 获取实例
-     *
-     * @return Route
-     */
-    public static function instance()
-    {
-        if (is_null(self::$instance)) {
-            self::$instance = new self();
-        }
-
-        return self::$instance;
     }
 
     /**

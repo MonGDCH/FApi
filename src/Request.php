@@ -2,20 +2,18 @@
 
 namespace FApi;
 
+use mon\util\Instance;
+
 /**
  * 请求类
  *
  * @author Mon <985558837@qq.com>
  * @version v2.0 2017-11-28
+ * @version v2.0.1 20210304 优化代码
  */
 class Request
 {
-    /**
-     * 对象单例
-     *
-     * @var Request
-     */
-    protected static $instance;
+    use Instance;
 
     /**
      * 请求类型
@@ -67,130 +65,155 @@ class Request
     public $baseUrl = null;
 
     /**
-     * 私有化构造方法
+     * php://input数据
+     *
+     * @var null
      */
-    private function __construct()
-    {
-    }
+    protected $input = null;
 
     /**
-     * 获取实例
+     * HTTP请求头
      *
-     * @return Request
+     * @var array
      */
-    public static function instance()
+    protected $header = [];
+
+    /**
+     * 私有化构造方法
+     */
+    protected function __construct()
     {
-        if (is_null(self::$instance)) {
-            self::$instance = new self();
+        if (function_exists('apache_request_headers') && $result = apache_request_headers()) {
+            $header = $result;
+        } else {
+            $header = [];
+            $server = $_SERVER;
+            foreach ($server as $key => $val) {
+                if (0 === strpos($key, 'HTTP_')) {
+                    $key = str_replace('_', '-', strtolower(substr($key, 5)));
+                    $header[$key] = $val;
+                }
+            }
+            if (isset($server['CONTENT_TYPE'])) {
+                $header['content-type'] = $server['CONTENT_TYPE'];
+            }
+            if (isset($server['CONTENT_LENGTH'])) {
+                $header['content-length'] = $server['CONTENT_LENGTH'];
+            }
         }
 
-        return self::$instance;
+        $this->header = array_change_key_case($header);
+        $this->input = file_get_contents('php://input');
     }
 
     /**
      * 获取传参
      *
-     * @param string $key       参数键名
-     * @param string $default   默认值
+     * @param string $name       参数键名
+     * @param mixed  $default   默认值
      * @param boolean $filter   是否过滤参数
      * @return mixed
      */
-    public function params($key = '', $default = '', $filter = true)
+    public function params($name = '', $default = null, $filter = true)
     {
-        $result = '';
-        if (empty($key)) {
-            $result = $_REQUEST;
-        } else {
-            $result = (isset($_REQUEST[$key])) ? $_REQUEST[$key] : $default;
-        }
+        $result = empty($name) ? $_REQUEST : $this->getData($_REQUEST, $name, $default);
 
-        if ($filter) {
-            $result = $this->filter($result);
-        }
-
-        return $result;
+        return $filter ? $this->filter($result) : $result;
     }
 
     /**
      * 获取GET数据
      *
-     * @param string $key       参数键名
-     * @param string $default   默认值
+     * @param string $name      参数键名
+     * @param mixed  $default   默认值
      * @param boolean $filter   是否过滤参数
      * @return mixed
      */
-    public function get($key = '', $default = '', $filter = true)
+    public function get($name = '', $default = null, $filter = true)
     {
-        $result = '';
-        if (empty($key)) {
-            $result = $_GET;
-        } else {
-            $result = (isset($_GET[$key])) ? $_GET[$key] : $default;
-        }
+        $result = empty($name) ? $_GET : $this->getData($_GET, $name, $default);
 
-        if ($filter) {
-            $result = $this->filter($result);
-        }
-
-        return $result;
+        return $filter ? $this->filter($result) : $result;
     }
 
     /**
      * 获取POST数据
      *
-     * @param string $key       参数键名
-     * @param string $default   默认值
+     * @param string $name      参数键名
+     * @param mixed  $default   默认值
      * @param boolean $filter   是否过滤参数
      * @return mixed
      */
-    public function post($key = '', $default = '', $filter = true)
+    public function post($name = '', $default = null, $filter = true)
     {
-        $result = '';
-        if (empty($key)) {
-            $result = $_POST;
-        } else {
-            $result = (isset($_POST[$key])) ? $_POST[$key] : $default;
-        }
+        $result = empty($name) ? $_POST : $this->getData($_POST, $name, $default);
 
-        if ($filter) {
-            $result = $this->filter($result);
-        }
-
-        return $result;
+        return $filter ? $this->filter($result) : $result;
     }
 
     /**
-     * 数据安全过滤，采用filter_var函数
-     * 
-     * @param  mixed $input 过滤的数据
+     * 获取input输入数据
+     *
      * @return mixed
      */
-    public function filter($input)
+    public function input($name = '', $default = null, $filter = true)
     {
-        if (is_array($input)) {
-            return filter_var_array((array)$input, FILTER_SANITIZE_STRING);
-        }
+        $data = $this->getInputData();
+        $result = empty($name) ? $data : $this->getData($data, $name, $default);
 
-        return filter_var($input, FILTER_SANITIZE_STRING);
+        return $filter ? $this->filter($result) : $result;
     }
 
     /**
      * 获取$_SERVER数据
      *
-     * @param  string $key     参数键名
-     * @param  string $default 默认值
+     * @param  string $name    参数键名
+     * @param  mixed  $default 默认值
      * @return mixed
      */
-    public function server($key = '', $default = '')
+    public function server($name = '', $default = null)
     {
-        $result = '';
-        if (empty($key)) {
-            $result = $_SERVER;
-        } else {
-            $result = (isset($_SERVER[$key])) ? $_SERVER[$key] : $default;
+        return empty($name) ? $_SERVER : $this->getData($_SERVER, $name, $default);
+    }
+
+    /**
+     *获取当前的Header
+     *
+     * @param  string $name header名称
+     * @param  mixed  $default 默认值
+     * @return string|array
+     */
+    public function header($name = '', $default = null)
+    {
+        if ('' === $name) {
+            return $this->header;
         }
 
-        return $result;
+        $name = str_replace('_', '-', strtolower($name));
+
+        return isset($this->header[$name]) ? $this->header[$name] : $default;
+    }
+
+    /**
+     * 当前请求 HTTP_CONTENT_TYPE
+     *
+     * @return string
+     */
+    public function getContentType()
+    {
+        $contentType = $this->header('Content-Type');
+
+        if ($contentType) {
+            if (strpos($contentType, ';')) {
+                $typeArr = explode(';', $contentType);
+                $type = $typeArr[0];
+            } else {
+                $type = $contentType;
+            }
+            return trim($type);
+        }
+
+        return '';
     }
 
     /**
@@ -263,9 +286,50 @@ class Request
     }
 
     /**
+     * 判断是否存在某个请求参数
+     *
+     * @param string $name  参数名
+     * @param string $type  请求类型，支持params、get、post、input、server、header等类型
+     * @param boolean $checkEmpty 是否验证空字符串
+     * @return boolean
+     */
+    public function has($name, $type, $checkEmpty = false)
+    {
+        if (!in_array($type, ['params', 'get', 'post', 'input', 'server', 'header'])) {
+            return false;
+        }
+        $data = $this->$type();
+        // 按.拆分成多维数组进行判断
+        foreach (explode('.', $name) as $val) {
+            if (isset($data[$val])) {
+                $data = $data[$val];
+            } else {
+                return false;
+            }
+        }
+
+        return ($checkEmpty && '' === $data) ? false : true;
+    }
+
+    /**
+     * 数据安全过滤，采用filter_var函数
+     * 
+     * @param  mixed $input 过滤的数据
+     * @return mixed
+     */
+    public function filter($input)
+    {
+        if (is_array($input)) {
+            return filter_var_array((array)$input, FILTER_SANITIZE_STRING);
+        }
+
+        return filter_var($input, FILTER_SANITIZE_STRING);
+    }
+
+    /**
      * 当前是否Ajax请求
      *
-     * @return bool
+     * @return boolean
      */
     public function isAjax()
     {
@@ -347,7 +411,7 @@ class Request
     /**
      * 检测是否使用手机访问
      *
-     * @return bool
+     * @return boolean
      */
     public function isMobile()
     {
@@ -367,7 +431,7 @@ class Request
     /**
      * 当前是否ssl
      *
-     * @return bool
+     * @return boolean
      */
     public function isSsl()
     {
@@ -613,5 +677,47 @@ class Request
         }
 
         return $requestUri;
+    }
+
+    /**
+     * 获取数据, 支持通过'.'分割获取无限级节点数据
+     *
+     * @param  array  $data 数据源
+     * @param  string $name 字段名
+     * @param  mixed  $default 默认值
+     * @return mixed
+     */
+    protected function getData(array $data, $name, $default = null)
+    {
+        foreach (explode('.', $name) as $val) {
+            if (isset($data[$val])) {
+                $data = $data[$val];
+            } else {
+                return $default;
+            }
+        }
+
+        return $data;
+    }
+
+    /**
+     * 获取input数据
+     *
+     * @param string $data input数据集
+     * @return array
+     */
+    protected function getInputData($data = '')
+    {
+        $data = $data ?: $this->input;
+        $contentType = $this->getContentType();
+        // 判断请求数据类型，转换数据格式
+        if ('application/x-www-form-urlencoded' == $contentType) {
+            parse_str($data, $data);
+            return $data;
+        } elseif (false !== strpos($contentType, 'json')) {
+            return (array) json_decode($data, true);
+        }
+
+        return [];
     }
 }
