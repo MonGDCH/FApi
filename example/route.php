@@ -2,16 +2,19 @@
 /**
  * 路由DEMO
  */
+
+use FApi\App;
+
 require '../vendor/autoload.php';
 
 // 获取应用实例
-$app = \FApi\App::instance()->init(false);
+$app = App::instance()->init(false);
 
 // 函数调用演示
 $app->route->group('', function($route){
     // 注册GET路由
     $route->get('/', function(){
-        return 'Hello FApi';
+        return 'Hello ' . App::instance()->name();
     });
 
     // 注册组别路由

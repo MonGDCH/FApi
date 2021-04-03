@@ -3,6 +3,7 @@
 namespace FApi;
 
 use FApi\Hook;
+use mon\util\Tool;
 use FApi\exception\ResponseException;
 
 class Response
@@ -51,8 +52,7 @@ class Response
         'json'   => 'application/json',
         'xml'    => 'text/xml',
         'html'   => 'text/html',
-        'jsonp'  => 'application/javascript',
-        'script' => 'application/javascript',
+        'js'     => 'application/javascript',
         'text'   => 'text/plain',
     ];
 
@@ -101,8 +101,17 @@ class Response
         } else {
             $this->header[$name] = $val;
         }
-
         return $this;
+    }
+
+    /**
+     * 获取请求头
+     *
+     * @return array
+     */
+    public function getHeader()
+    {
+        return $this->header;
     }
 
     /**
@@ -114,7 +123,6 @@ class Response
     public function data($data)
     {
         $this->data = $data;
-
         return $this;
     }
 
@@ -127,8 +135,17 @@ class Response
     public function code($code)
     {
         $this->code = $code;
-
         return $this;
+    }
+
+    /**
+     * 获取状态码
+     *
+     * @return integer
+     */
+    public function getCode()
+    {
+        return $this->code;
     }
 
     /**
@@ -140,7 +157,6 @@ class Response
     public function type($type)
     {
         $this->type = strtolower($type);
-
         return $this;
     }
 
@@ -153,16 +169,14 @@ class Response
     {
         // 获取数据
         $data = $this->getContent();
-
-        // 输出结果钩子
-        Hook::listen('send', $data);
-
+        // 输出结果前钩子
+        Hook::trigger('beforSend', $data);
         // 输出头
-        if (!headers_sent() && !empty($this->header)) {
+        if (!headers_sent() && !empty($this->getHeader())) {
             // 发送状态码
-            http_response_code($this->code);
+            http_response_code($this->getCode());
             // 发送头部信息
-            foreach ($this->header as $name => $val) {
+            foreach ($this->getHeader() as $name => $val) {
                 if (is_null($val)) {
                     header($name);
                 } else {
@@ -170,10 +184,10 @@ class Response
                 }
             }
         }
-
         // 输出数据
         echo $data;
-
+        // 输出结果后钩子
+        Hook::trigger('afterSend', $data);
         // fastcgi提高页面响应
         if (function_exists('fastcgi_finish_request')) {
             fastcgi_finish_request();
@@ -223,7 +237,6 @@ class Response
     protected function toJson()
     {
         $data = json_encode($this->data, JSON_UNESCAPED_UNICODE);
-
         // 转换失败，抛出错误信息
         if ($data === false) {
             throw new ResponseException('Data conversion to json format failed,' . json_last_error_msg(), 500);
@@ -240,29 +253,11 @@ class Response
     protected function toXML()
     {
         // XML根节点
-        $root = 'Fapi';
+        $root = App::instance()->name();
         $xml  = "<?xml version=\"1.0\" encoding=\"{$this->charset}\"?>";
         $xml .= "<{$root}>";
-        $xml .= $this->XMLFormat($this->data);
+        $xml .= Tool::instance()->dataToXML($this->data);
         $xml .= "</{$root}>";
-
-        return $xml;
-    }
-
-    /**
-     * 辅助toXML方法转换数据
-     *
-     * @param array $data
-     * @return string
-     */
-    protected function XMLFormat($data)
-    {
-        $xml = '';
-        foreach ($data as $key => $val) {
-            $xml .= "<{$key}>";
-            $xml .= (is_array($val) || is_object($val)) ? $this->XMLFormat($val) : $val;
-            $xml .= "</{$key}>";
-        }
 
         return $xml;
     }

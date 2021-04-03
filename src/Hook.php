@@ -11,9 +11,10 @@ use mon\util\Container;
  * 预置钩子
  * bootstarap           应用初始化
  * run                  执行应用前
- * action_befor         回调执行前, 传值App实例
- * action_after         回调执行后，传值回调返回结果集
- * send                 响应输出前，传值响应实例中的响应内容
+ * beforAction          回调执行前, 传值App实例
+ * afterAction          回调执行后，传值回调返回结果集
+ * beforSend            响应输出前，传值响应实例中的响应内容
+ * afterSend            响应输出后，传值响应实例中的响应内容
  * end                  应用执行结束
  * error                应用错误, 传值错误信息
  * 
@@ -41,13 +42,13 @@ class Hook
     }
 
     /**
-     * 添加一个钩子
+     * 监听一个行为
      *
      * @param mixed $tag     钩子名称
      * @param mixed $callbak 钩子回调
      * @return void
      */
-    public static function add($tag, $callbak)
+    public static function listen($tag, $callbak)
     {
         isset(self::$tags[$tag]) || self::$tags[$tag] = [];
         self::$tags[$tag][] = $callbak;
@@ -57,7 +58,7 @@ class Hook
      * 获取钩子信息
      *
      * @param  string $tag 钩子名称
-     * @return mixed
+     * @return array
      */
     public static function get($tag = '')
     {
@@ -70,16 +71,15 @@ class Hook
     }
 
     /**
-     * 监听&执行行为
+     * 触发&执行行为
      *
-     * @param  mixed $tag     钩子名称
-     * @param  mixed &$params 参数
-     * @return mixed
+     * @param  string $tag 钩子名称
+     * @param  mixed $params 参数
+     * @return array
      */
-    public static function listen($tag, &$params = null)
+    public static function trigger($tag, $params = null)
     {
         $tags = static::get($tag);
-
         $results = [];
         foreach ($tags as $k => $v) {
             $results[$k] = self::exec($v, $k, $params);
@@ -97,10 +97,10 @@ class Hook
      *
      * @param  mixed  $class   行为回调
      * @param  string $tag     钩子名称
-     * @param  mixed  &$params 参数
+     * @param  mixed  $params 参数
      * @return mixed
      */
-    public static function exec($class, $tag = '', &$params = null)
+    public static function exec($class, $tag = '', $params = null)
     {
         if ($class instanceof Closure) {
             // 匿名回调

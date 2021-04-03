@@ -109,7 +109,7 @@ class Request
     /**
      * 获取传参
      *
-     * @param string $name       参数键名
+     * @param string $name      参数键名
      * @param mixed  $default   默认值
      * @param boolean $filter   是否过滤参数
      * @return mixed
@@ -177,9 +177,9 @@ class Request
     }
 
     /**
-     *获取当前的Header
+     * 获取当前的Header
      *
-     * @param  string $name header名称
+     * @param  string $name    header名称
      * @param  mixed  $default 默认值
      * @return string|array
      */
@@ -253,9 +253,7 @@ class Request
      */
     public function ip()
     {
-        $keys = array('X_FORWARDED_FOR', 'HTTP_X_FORWARDED_FOR', 'CLIENT_IP', 'REMOTE_ADDR');
-
-        foreach ($keys as $key) {
+        foreach (['X_FORWARDED_FOR', 'HTTP_X_FORWARDED_FOR', 'CLIENT_IP', 'REMOTE_ADDR'] as $key) {
             if (isset($_SERVER[$key])) {
                 return $_SERVER[$key];
             }
@@ -617,7 +615,6 @@ class Request
 
         // 请求的URI
         $requestUri = $this->uri();
-
         // 与请求的URI一样?
         if (0 === strpos($requestUri, $baseUrl)) {
             return $baseUrl;
@@ -629,7 +626,6 @@ class Request
         }
 
         $basename = basename($baseUrl);
-
         if (empty($basename)) {
             return '';
         }
@@ -654,10 +650,7 @@ class Request
         } elseif (isset($_SERVER['HTTP_X_REWRITE_URL'])) {
             // 带ISAPI_Rewrite的IIS
             $requestUri = $_SERVER['HTTP_X_REWRITE_URL'];
-        } elseif (
-            isset($_SERVER['IIS_WasUrlRewritten']) && $_SERVER['IIS_WasUrlRewritten'] == '1'
-            && isset($_SERVER['UNENCODED_URL']) && $_SERVER['UNENCODED_URL'] != ''
-        ) {
+        } elseif (isset($_SERVER['IIS_WasUrlRewritten']) && $_SERVER['IIS_WasUrlRewritten'] == '1' && isset($_SERVER['UNENCODED_URL']) && $_SERVER['UNENCODED_URL'] != '') {
             // URL重写的IIS7：确保我们得到的未编码的URL(双斜杠的问题)
             $requestUri = $_SERVER['UNENCODED_URL'];
         } elseif (isset($_SERVER['REQUEST_URI'])) {

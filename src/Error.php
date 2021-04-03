@@ -10,7 +10,6 @@ use FApi\exception\RouteException;
  *
  * @author  Mon <985558837@qq.com>
  * @version 2.0
- * @see 2.0 修改日志写入逻辑。
  */
 class Error
 {
@@ -24,7 +23,7 @@ class Error
     /**
      * 注册异常处理接管
      *
-     * @param boolean $debug    是否为调试模式
+     * @param boolean $debug 是否为调试模式
      * @return void
      */
     public static function register($debug)
@@ -51,11 +50,11 @@ class Error
         if (!is_null($error) && in_array($error['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR, E_USER_ERROR])) {
             // 应用错误
             $error['level'] = 'error';
-            Hook::listen('error', $error);
+            Hook::trigger('error', $error);
             self::halt($error);
         } else {
             // 应用结束
-            Hook::listen('end');
+            Hook::trigger('end');
         }
     }
 
@@ -80,7 +79,7 @@ class Error
         ];
 
         // 应用错误
-        Hook::listen('error', $error);
+        Hook::trigger('error', $error);
         self::halt($error);
     }
 
@@ -93,9 +92,9 @@ class Error
     public static function appException($e)
     {
         $error = [];
-        $error['message']   = $e->getMessage();
-        $error['file']      = $e->getFile();
-        $error['line']      = $e->getLine();
+        $error['file'] = $e->getFile();
+        $error['line'] = $e->getLine();
+        $error['message'] = $e->getMessage();
         $trace = $e->getTrace();
         if (isset($trace[0]) && !empty($trace[0]['function']) && $trace[0]['function'] == 'exception') {
             $error['file'] = $trace[0]['file'];
@@ -105,7 +104,7 @@ class Error
         $error['level'] = 'exception';
 
         // 应用异常
-        Hook::listen('error', $error);
+        Hook::trigger('error', $error);
         $code = ($e instanceof RouteException) ? $e->getCode() : 500;
         self::halt($error, $code);
     }
@@ -119,14 +118,16 @@ class Error
      */
     public static function halt($error, $code = 500)
     {
-        // 清空输出缓存
-        ob_get_contents() && ob_end_clean();
-        http_response_code($code);
-        // 调试模式, 引入错误提示模板
-        if (self::$debug) {
-            include __DIR__ . '/tpl/exception.tpl';
+        if (!(PHP_SAPI == 'cli' || PHP_SAPI == 'cli-server')) {
+            // 清空输出缓存
+            ob_get_contents() && ob_end_clean();
+            http_response_code($code);
+            // 调试模式, 引入错误提示模板
+            if (self::$debug) {
+                include __DIR__ . '/tpl/exception.tpl';
+            }
+            // 非调试模式，不返回
+            exit();
         }
-        // 非调试模式，不返回
-        exit();
     }
 }

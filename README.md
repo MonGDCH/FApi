@@ -6,6 +6,11 @@ PHP Api友好快速路由框架。
 
 #### 版本说明
 
+> 2.1.0
+
+* 优化代码，逐步支持workerman、swoole等常驻式服务容器
+* 增强Hook类，优化内置行为事件，修改方法名称(更具语义化)
+
 > v2.0.3
 
 * 优化代码，增强注解
@@ -93,7 +98,7 @@ composer require mongdch/fapi
 ```
 git clone https://github.com/MonGDCH/FApi.git
 ```
-当然，使用git的话建议还是使用release的，当然给我提交issues，我也是非常欢迎的^_^。
+当然，使用git的话建议还是使用release的，如发现问题欢迎提交issues。
 
 #### 使用说明
 ```

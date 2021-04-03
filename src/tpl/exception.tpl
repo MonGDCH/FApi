@@ -7,10 +7,9 @@
 *{ padding: 0; margin: 0; }
 html{ overflow-y: scroll; }
 body{ background: #fff; font-family: '微软雅黑'; color: #333; font-size: 16px; }
-img{ border: 0; }
+h1{ font-size: 32px; line-height: 48px; }
 .error{ padding: 24px 48px; }
 .face{ font-size: 100px; font-weight: normal; line-height: 120px; margin-bottom: 12px; }
-h1{ font-size: 32px; line-height: 48px; }
 .error .content{ padding-top: 10px}
 .error .info{ margin-bottom: 12px; }
 .error .info .title{ margin-bottom: 3px; color: #000; font-weight: 700; font-size: 16px;}
@@ -18,7 +17,6 @@ h1{ font-size: 32px; line-height: 48px; }
 </style>
 </head>
 <body>
-
 <div class="error">
     <p class="face">出错啦~</p>
     <h1><?php echo strip_tags($error['message']);?></h1>
@@ -36,6 +34,5 @@ h1{ font-size: 32px; line-height: 48px; }
     <?php }?>
     </div>
 </div>
-
 </body>
 </html>

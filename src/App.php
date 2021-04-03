@@ -12,8 +12,8 @@ use FApi\Response;
 use mon\util\Instance;
 use mon\util\Container;
 use FastRoute\Dispatcher;
-use FApi\exception\RouteException;
 use FApi\exception\JumpException;
+use FApi\exception\RouteException;
 
 /**
  * Fapi核心驱动类
@@ -35,7 +35,7 @@ class App
      * 
      * @var string
      */
-    const VERSION = '2.0.3';
+    const VERSION = '2.0.4';
 
     /**
      * 启动模式
@@ -43,6 +43,13 @@ class App
      * @var boolean
      */
     protected $debug = true;
+
+    /**
+     * App名称
+     *
+     * @var string
+     */
+    protected $name = 'MonApi';
 
     /**
      * 服务容器实例
@@ -133,7 +140,7 @@ class App
         // 注册异常处理
         Error::register($this->debug);
         // 应用初始化钩子
-        Hook::listen('bootstrap');
+        Hook::trigger('bootstrap');
 
         return $this;
     }
@@ -146,6 +153,20 @@ class App
     public function debug()
     {
         return $this->debug;
+    }
+
+    /**
+     * 获取或者设置App名称
+     *
+     * @param string $name
+     * @return string
+     */
+    public function name($name = '')
+    {
+        if (!is_string($name) && !empty($name)) {
+            $this->name = $name;
+        }
+        return $this->name;
     }
 
     /**
@@ -308,16 +329,17 @@ class App
     /**
      * 执行应用
      *
-     * @return mixed
+     * @param string $method 请求类型
+     * @param string $path 请求pathinfo
+     * @throws RouteException
+     * @return Response 响应结果集
      */
-    public function run()
+    public function run($method = null, $path = null)
     {
+        $method = is_null($method) ? $this->request->method() : strtoupper($method);
+        $path = is_null($path) ? $this->request->pathInfo() : $path;
         // 应用执行钩子
-        Hook::listen('run');
-
-        $request = $this->container->make('request');
-        $path = $request->pathInfo();
-        $method = $request->method();
+        Hook::trigger('run', ['method' => $method, 'path' => $path]);
 
         // 解析路由
         $callback = $this->route->dispatch($method, $path);
@@ -392,7 +414,7 @@ class App
         $this->after = $this->callback['after'];
 
         // 回调执行前
-        Hook::listen('action_befor', $this);
+        Hook::trigger('beforAction', $this);
         try {
             // 执行中间件
             if ($this->befor) {
@@ -410,7 +432,7 @@ class App
         }
 
         // 回调结束后
-        Hook::listen('action_after', $result);
+        Hook::trigger('afterAction', $result);
 
         return $result;
     }

@@ -1,4 +1,7 @@
 <?php
+
+use FApi\Hook;
+
 require '../vendor/autoload.php';
 
 /**
@@ -15,18 +18,28 @@ class TestHook
 
 // 增加钩子
 \FApi\Hook::register([
-    'bootstrap' => function(){echo 'bootstrap';},
-    'run'       => function(){echo 'run';},
-    'action_befor' => '',
-    'action_after' => '',
-    'send'      => function($data){var_dump($data);},
-    'end'       => function(){echo 'end';},
-    'error'     => 'TestHook',
+    'bootstrap' => [function () {
+        debug('bootstrap');
+    }],
+    'run'       => [function () {
+        debug('run');
+    }],
+    'beforSend'      => [function ($data) {
+        var_dump($data);
+    }],
+    'end'       => [function () {
+        debug('end');
+    }],
+    'error'     => [TestHook::class],
 ]);
 
 $app = \FApi\App::instance()->init();
 
-$app->route->get('/', function($id = 1){
+Hook::listen('afterAction', function($data){
+    var_dump('afterAction: ', $data);
+});
+
+$app->route->get('/', function ($id = 1) {
     return $id;
 });
 
