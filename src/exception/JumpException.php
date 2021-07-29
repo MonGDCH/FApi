@@ -34,7 +34,7 @@ class JumpException extends Exception
      *
      * @return Response
      */
-    public function getResponse()
+    final public function getResponse()
     {
         return $this->response;
     }

@@ -8,17 +8,23 @@
     "packages": [
         {
             "name": "mongdch/mon-util",
-            "version": "1.3.1",
+            "version": "1.3.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/MonGDCH/mon-util.git",
-                "reference": "1de8c9a6c935b1b37823eda6c40585487c54aafe"
+                "reference": "e8c871154f736c659ade91bfa5d2c402cb860ecf"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/MonGDCH/mon-util/zipball/1de8c9a6c935b1b37823eda6c40585487c54aafe",
-                "reference": "1de8c9a6c935b1b37823eda6c40585487c54aafe",
-                "shasum": ""
+                "url": "https://api.github.com/repos/MonGDCH/mon-util/zipball/e8c871154f736c659ade91bfa5d2c402cb860ecf",
+                "reference": "e8c871154f736c659ade91bfa5d2c402cb860ecf",
+                "shasum": "",
+                "mirrors": [
+                    {
+                        "url": "https://mirrors.aliyun.com/composer/dists/%package%/%reference%.%type%",
+                        "preferred": true
+                    }
+                ]
             },
             "require": {
                 "php": ">=5.6.0"
@@ -60,9 +66,9 @@
             ],
             "support": {
                 "issues": "https://github.com/MonGDCH/mon-util/issues",
-                "source": "https://github.com/MonGDCH/mon-util/tree/1.3.1"
+                "source": "https://github.com/MonGDCH/mon-util/tree/1.3.3"
             },
-            "time": "2021-03-18T10:13:40+00:00"
+            "time": "2021-07-26T06:00:07+00:00"
         },
         {
             "name": "nikic/fast-route",
@@ -76,7 +82,13 @@
                 "type": "zip",
                 "url": "https://api.github.com/repos/nikic/FastRoute/zipball/181d480e08d9476e61381e04a71b34dc0432e812",
                 "reference": "181d480e08d9476e61381e04a71b34dc0432e812",
-                "shasum": ""
+                "shasum": "",
+                "mirrors": [
+                    {
+                        "url": "https://mirrors.aliyun.com/composer/dists/%package%/%reference%.%type%",
+                        "preferred": true
+                    }
+                ]
             },
             "require": {
                 "php": ">=5.4.0"

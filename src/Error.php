@@ -2,7 +2,9 @@
 
 namespace FApi;
 
+use Exception;
 use FApi\Hook;
+use FApi\exception\ErrorException;
 use FApi\exception\RouteException;
 
 /**
@@ -49,9 +51,8 @@ class Error
         $error = error_get_last() ?: null;
         if (!is_null($error) && in_array($error['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR, E_USER_ERROR])) {
             // 应用错误
-            $error['level'] = 'error';
-            Hook::trigger('error', $error);
-            self::halt($error);
+            $exception = new ErrorException($error['type'], $error['message'], $error['file'], $error['line']);
+            self::appException($exception);
         } else {
             // 应用结束
             Hook::trigger('end');
@@ -65,22 +66,12 @@ class Error
      * @param  integer $errstr  详细错误信息
      * @param  string  $errfile 出错的文件
      * @param  integer $errline 出错行号
-     * @throws ErrorException
      * @return void
      */
     public static function appError($errno, $errstr, $errfile = '', $errline = 0)
     {
-        $error = [
-            'errorNum'  => $errno,
-            'message'   => $errstr,
-            'file'      => $errfile,
-            'line'      => $errline,
-            'level'     => 'warning',
-        ];
-
-        // 应用错误
-        Hook::trigger('error', $error);
-        self::halt($error);
+        $exception = new ErrorException($errno, $errstr, $errfile, $errline);
+        self::appException($exception);
     }
 
     /**
@@ -91,43 +82,76 @@ class Error
      */
     public static function appException($e)
     {
-        $error = [];
-        $error['file'] = $e->getFile();
-        $error['line'] = $e->getLine();
-        $error['message'] = $e->getMessage();
-        $trace = $e->getTrace();
-        if (isset($trace[0]) && !empty($trace[0]['function']) && $trace[0]['function'] == 'exception') {
-            $error['file'] = $trace[0]['file'];
-            $error['line'] = $trace[0]['line'];
-        }
-        $error['function'] = $error['class'] = '';
-        $error['level'] = 'exception';
-
         // 应用异常
-        Hook::trigger('error', $error);
+        Hook::trigger('error', $e);
         $code = ($e instanceof RouteException) ? $e->getCode() : 500;
-        self::halt($error, $code);
+        self::halt($e, $code);
     }
 
     /**
      * 异常输出
      *
-     * @param mixed  $error 错误信息
+     * @param Exception  $error 错误信息
      * @param integer $code 错误码
      * @return void
      */
-    public static function halt($error, $code = 500)
+    protected static function halt(Exception $exception, $httpCode = 500)
     {
         if (!(PHP_SAPI == 'cli' || PHP_SAPI == 'cli-server')) {
             // 清空输出缓存
             ob_get_contents() && ob_end_clean();
-            http_response_code($code);
+            http_response_code($httpCode);
             // 调试模式, 引入错误提示模板
             if (self::$debug) {
+                $data = [
+                    'name'    => get_class($exception),
+                    'file'    => $exception->getFile(),
+                    'line'    => $exception->getLine(),
+                    'message' => $exception->getMessage(),
+                    'trace'   => $exception->getTrace(),
+                    'code'    => $exception->getCode(),
+                    'source'  => self::getSourceCode($exception),
+                    'tables'  => [
+                        'GET Data'              => $_GET,
+                        'POST Data'             => $_POST,
+                        'Files'                 => $_FILES,
+                        'Cookies'               => $_COOKIE,
+                        'Session'               => isset($_SESSION) ? $_SESSION : [],
+                        'Server/Request Data'   => $_SERVER,
+                        'Environment Variables' => $_ENV,
+                    ],
+                ];
+                extract($data);
                 include __DIR__ . '/tpl/exception.tpl';
             }
             // 非调试模式，不返回
             exit();
         }
+    }
+
+    /**
+     * 获取出错文件内容
+     * 获取错误的前9行和后9行
+     * 
+     * @param  Exception $exception
+     * @return array 错误文件内容
+     */
+    protected static function getSourceCode(Exception $exception)
+    {
+        // 读取前9行和后9行
+        $line  = $exception->getLine();
+        $first = ($line - 9 > 0) ? $line - 9 : 1;
+
+        try {
+            $contents = file($exception->getFile());
+            $source   = [
+                'first'  => $first,
+                'source' => array_slice($contents, $first - 1, 19),
+            ];
+        } catch (Exception $e) {
+            $source = [];
+        }
+
+        return $source;
     }
 }
