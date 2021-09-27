@@ -35,7 +35,7 @@ class App
      * 
      * @var string
      */
-    const VERSION = '2.0.4';
+    const VERSION = '2.1.2';
 
     /**
      * 启动模式

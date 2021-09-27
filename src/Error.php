@@ -95,7 +95,7 @@ class Error
      * @param integer $code 错误码
      * @return void
      */
-    protected static function halt(Exception $exception, $httpCode = 500)
+    protected static function halt($exception, $httpCode = 500)
     {
         if (!(PHP_SAPI == 'cli' || PHP_SAPI == 'cli-server')) {
             // 清空输出缓存
@@ -126,6 +126,9 @@ class Error
             }
             // 非调试模式，不返回
             exit();
+        } else {
+            // 脚本调用，直接抛出异常
+            throw $exception;
         }
     }
 
@@ -136,7 +139,7 @@ class Error
      * @param  Exception $exception
      * @return array 错误文件内容
      */
-    protected static function getSourceCode(Exception $exception)
+    protected static function getSourceCode($exception)
     {
         // 读取前9行和后9行
         $line  = $exception->getLine();
