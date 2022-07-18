@@ -3,9 +3,15 @@
 namespace FApi;
 
 use FApi\Hook;
-use mon\util\Tool;
+use mon\util\Common;
 use FApi\exception\ResponseException;
 
+/**
+ * 响应对象
+ * 
+ * @author Mon <985558837@qq.com>
+ * @version 1.0.0
+ */
 class Response
 {
     /**
@@ -49,11 +55,11 @@ class Response
      * @var array
      */
     protected $headers = [
-        'json'   => 'application/json',
-        'xml'    => 'text/xml',
-        'html'   => 'text/html',
-        'js'     => 'application/javascript',
-        'text'   => 'text/plain',
+        'json'  => 'application/json',
+        'xml'   => 'text/xml',
+        'html'  => 'text/html',
+        'js'    => 'application/javascript',
+        'text'  => 'text/plain',
     ];
 
     /**
@@ -70,7 +76,8 @@ class Response
         $this->code = $code;
 
         // 设置头信息
-        $header = $this->headers[$this->type] . ';charset=' . $this->charset;
+        $headerInfo = isset($this->headers[$this->type]) ? $this->headers[$this->type] : $this->headers['html'];
+        $header = $headerInfo . ';charset=' . $this->charset;
         $this->header('Content-Type', $header);
     }
 
@@ -256,7 +263,7 @@ class Response
         $root = App::instance()->name();
         $xml  = "<?xml version=\"1.0\" encoding=\"{$this->charset}\"?>";
         $xml .= "<{$root}>";
-        $xml .= Tool::instance()->dataToXML($this->data);
+        $xml .= Common::instance()->arrToXML($this->data);
         $xml .= "</{$root}>";
 
         return $xml;

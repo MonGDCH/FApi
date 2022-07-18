@@ -10,7 +10,7 @@ use FApi\exception\JumpException;
 /**
  * URL构建类
  *
- * @author Mon 985558837@qq.com
+ * @author Mon <985558837@qq.com>
  * @version 2.0 重写URL构造类，重新定义构造方法
  */
 class Url

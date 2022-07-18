@@ -18,8 +18,8 @@ use mon\util\Container;
  * end                  应用执行结束
  * error                应用错误, 传值错误信息
  * 
- * @author Mon 985558837@qq.com
- * @version 1.0
+ * @author Mon <985558837@qq.com>
+ * @version 1.0.0
  */
 class Hook
 {
@@ -73,7 +73,7 @@ class Hook
     /**
      * 触发&执行行为
      *
-     * @param  string $tag 钩子名称
+     * @param  string $tag   钩子名称
      * @param  mixed $params 参数
      * @return array
      */
@@ -97,7 +97,7 @@ class Hook
      *
      * @param  mixed  $class   行为回调
      * @param  string $tag     钩子名称
-     * @param  mixed  $params 参数
+     * @param  mixed  $params  参数
      * @return mixed
      */
     public static function exec($class, $tag = '', $params = null)

@@ -14,6 +14,7 @@ use mon\util\Container;
 use FastRoute\Dispatcher;
 use FApi\exception\JumpException;
 use FApi\exception\RouteException;
+use FApi\interfaces\Callback;
 
 /**
  * Fapi核心驱动类
@@ -26,7 +27,7 @@ use FApi\exception\RouteException;
  * @version 2.0.0 2019-12-21
  * @version 2.0.2 2020-07-17    增强注解
  */
-class App
+class App implements Callback
 {
     use Instance;
 
@@ -49,7 +50,7 @@ class App
      *
      * @var string
      */
-    protected $name = 'MonApi';
+    protected $name = 'mon-api';
 
     /**
      * 服务容器实例

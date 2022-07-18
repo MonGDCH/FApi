@@ -8,8 +8,7 @@ use mon\util\Instance;
  * 请求类
  *
  * @author Mon <985558837@qq.com>
- * @version v2.0 2017-11-28
- * @version v2.0.1 20210304 优化代码
+ * @version 2.0.2  优化PHP8支持 2022-07-18
  */
 class Request
 {
@@ -18,56 +17,56 @@ class Request
     /**
      * 请求类型
      *
-     * @var null
+     * @var string
      */
     public $method = null;
 
     /**
      * 请求域名
      *
-     * @var null
+     * @var string
      */
     public $domain = null;
 
     /**
      * 请求URL带uri
      *
-     * @var null
+     * @var string
      */
     public $url = null;
 
     /**
      * 请求URl不带uri
      *
-     * @var null
+     * @var string
      */
     public $debaseUrl = null;
 
     /**
      * pathinfo路径
      *
-     * @var null
+     * @var string
      */
     public $pathInfo = null;
 
     /**
      * 请求URI
      *
-     * @var null
+     * @var string
      */
     public $requestUri = null;
 
     /**
      * 根路由
      *
-     * @var null
+     * @var string
      */
     public $baseUrl = null;
 
     /**
      * php://input数据
      *
-     * @var null
+     * @var mixed
      */
     protected $input = null;
 
@@ -310,18 +309,18 @@ class Request
     }
 
     /**
-     * 数据安全过滤，采用filter_var函数
+     * 数据安全过滤，采用htmlspecialchars函数
      * 
-     * @param  mixed $input 过滤的数据
+     * @param  string|array $input 过滤的数据
      * @return mixed
      */
     public function filter($input)
     {
         if (is_array($input)) {
-            return filter_var_array((array)$input, FILTER_SANITIZE_STRING);
+            return array_map('htmlspecialchars', (array)$input);
         }
 
-        return filter_var($input, FILTER_SANITIZE_STRING);
+        return htmlspecialchars($input);
     }
 
     /**

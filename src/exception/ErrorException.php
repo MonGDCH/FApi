@@ -6,8 +6,9 @@ use Exception;
 
 /**
  * 程序错误集异常
- *
- * @author Mon 985558837@qq.com
+ * 
+ * @author Mon <985558837@qq.com>
+ * @version 1.0.0
  */
 class ErrorException extends Exception
 {
@@ -20,8 +21,8 @@ class ErrorException extends Exception
 
     /**
      * 错误异常构造函数
-     * @access public
-     * @param  integer $level 错误级别
+     *
+     * @param  integer $level    错误级别
      * @param  string  $message  错误详细信息
      * @param  string  $file     出错文件路径
      * @param  integer $line     出错行号

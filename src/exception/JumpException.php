@@ -6,9 +6,10 @@ use Exception;
 use FApi\Response;
 
 /**
- * 路由异常
+ * 路由跳转
  *
- * @author Mon 985558837@qq.com
+ * @author Mon <985558837@qq.com>
+ * @version 1.0.0
  */
 class JumpException extends Exception
 {

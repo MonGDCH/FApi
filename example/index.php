@@ -1,4 +1,5 @@
 <?php
+
 /**
  * 路由DEMO
  */
@@ -22,8 +23,9 @@ $app->route->group('', function ($route) {
             'path' => '/home',
             // 路由中间件，注意需要返回$app->next()才会往下执行控制器及后置件
             'befor' => function ($vars, $app) {
-                $app->vars['befor'] = 'this is befor msg, ';
-                return $app->next();
+                $vars['befor'] = 'this is befor msg, ';
+                $app->setVars($vars);
+                return true;
             },
             'after' => function ($res) {
                 return $res . ', this is after msg';
@@ -53,7 +55,7 @@ $app->route->group('', function ($route) {
             );
 
             // 路由跳转
-            $r->get('/baidu', function(\FApi\Url $url){
+            $r->get('/baidu', function (\FApi\Url $url) {
                 // $redirect = $url->build('http://www.baidu.com', ['test' => 1]);
                 // return $url->redirect($redirect);
                 return $url->redirect('/home/test', ['test' => 1]);

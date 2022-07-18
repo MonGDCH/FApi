@@ -3,6 +3,7 @@
 namespace FApi;
 
 use Closure;
+use mon\util\File;
 use mon\util\Instance;
 use ReflectionFunction;
 use FastRoute\RouteCollector;
@@ -14,7 +15,7 @@ use FastRoute\Dispatcher\GroupCountBased as Dispatcher;
  * 路由封装
  *
  * @author Mon <985558837@qq.com>
- * @version v3.0 2019-12-21 支持数组定义多个中间件定义
+ * @version 3.0.1 优化路由缓存逻辑 2022-07-18
  */
 class Route
 {
@@ -322,7 +323,7 @@ class Route
         }
         // 缓存路由文件
         $cache = '<?php ' . PHP_EOL . 'return ' . $content . ';';
-        return file_put_contents($path, $cache);
+        return File::instance()->createFile($cache, $path, false);
     }
 
     /**
